@@ -1,8 +1,5 @@
 
 
-
-import org.apache.commons.codec.binary.StringUtils;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -17,7 +14,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +35,7 @@ public class HttpsHandler {
 
     private static String trustStorePath = "truststore.jks";
 
-    private static String trustStorePassword = "deshani";
+    private static String trustStorePassword = "wso2carbon";
 
     private static KeyStore trustStore;
     private static HttpsURLConnection httpsURLConnection;
@@ -51,7 +47,9 @@ public class HttpsHandler {
         InputStream is = null;
         try {
             trustStore = KeyStore.getInstance(trustStoreType);
-            File keystoreFile = new File(HttpsHandler.class.getClassLoader().getResource(trustStorePath).getFile());
+            System.out.println(trustStore);
+           // File keystoreFile = new File(HttpsHandler.class.getClassLoader().getResource(trustStorePath).getFile());
+            File keystoreFile = new File("/home/deshani/Documents/wso2is-5.3.0/repository/resources/security/client-truststore.jks");
             is = new FileInputStream(keystoreFile);
             trustStore.load(is, trustStorePassword.toCharArray());
 
@@ -108,8 +106,8 @@ public class HttpsHandler {
         try {
             URL url = new URL(link);
 
-            String urlParameters  = "username=admin&password=admin";
-            byte[] postData       = urlParameters.getBytes( StandardCharsets.UTF_8 );
+            String urlParameters = "username=admin&password=admin";
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
 
 
             httpsURLConnection = (HttpsURLConnection) url.openConnection();
@@ -120,7 +118,7 @@ public class HttpsHandler {
 
             httpsURLConnection.setInstanceFollowRedirects(true);
 
-            httpsURLConnection.setUseCaches( false );
+            httpsURLConnection.setUseCaches(false);
 
 
             if (requestHeaders != null) {
@@ -128,8 +126,10 @@ public class HttpsHandler {
                     httpsURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
                 }
             }
-            try( DataOutputStream wr = new DataOutputStream( httpsURLConnection.getOutputStream())) {
-                wr.write( postData );
+            try (DataOutputStream wr = new DataOutputStream(httpsURLConnection.getOutputStream())) {
+                wr.write(postData);
+                wr.flush();
+                wr.close();
             }
 
             StringBuilder builder = new StringBuilder();
@@ -138,12 +138,14 @@ public class HttpsHandler {
                     .append(httpsURLConnection.getResponseMessage())
                     .append("\n");
 
+
+            System.out.println(httpsURLConnection.getHeaderFields().entrySet().toString());
+
             Map<String, List<String>> map = httpsURLConnection.getHeaderFields();
-            for (Map.Entry<String, List<String>> entry : map.entrySet())
-            {
+            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
                 if (entry.getKey() == null)
                     continue;
-                builder.append( entry.getKey())
+                builder.append(entry.getKey())
                         .append(": ");
 
                 List<String> headerValues = entry.getValue();
@@ -162,35 +164,20 @@ public class HttpsHandler {
 
             System.out.println(builder);
 
-
-
-            //dumpl all cert info
-           // print_https_cert(httpsURLConnection);
-
-            //dump all the content
-            //print_content(httpsURLConnection);
-
-//            DataOutputStream wr = new DataOutputStream(httpsURLConnection.getOutputStream());
-//            wr.writeBytes(data);
-//            wr.flush();
-//            wr.close();
-
-
-            /*
-            System.out.println(httpsURLConnection.getOutputStream().toString());
-
-            inputStream = httpsURLConnection.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-            StringBuilder builder = new StringBuilder();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                builder.append(line);
-                builder.append("\n");
-            }
+//            System.out.println(httpsURLConnection.getOutputStream().toString());
+//
+//            inputStream = httpsURLConnection.getInputStream();
+//            reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+//            StringBuilder builder = new StringBuilder();
+//            String line;
+//
+//            while ((line = reader.readLine()) != null) {
+//                builder.append(line);
+//                builder.append("\n");
+//            }
             response = builder.toString();
 
-            */
+
 
         } catch (ProtocolException e) {
             e.printStackTrace();
@@ -204,16 +191,14 @@ public class HttpsHandler {
     }
 
 
-
-
-    private static void testIt(){
+    private static void testIt() {
 
         String https_url = "https://www.google.com/";
         URL url;
         try {
 
             url = new URL(https_url);
-            HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+            HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 
             //dumpl all cert info
             print_https_cert(con);
@@ -229,9 +214,9 @@ public class HttpsHandler {
 
     }
 
-    private static void print_https_cert(HttpsURLConnection con){
+    private static void print_https_cert(HttpsURLConnection con) {
 
-        if(con!=null){
+        if (con != null) {
 
             try {
 
@@ -240,7 +225,7 @@ public class HttpsHandler {
                 System.out.println("Cipher Suite : " + con.getCipherSuite());
                 System.out.println("\n");
 
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -248,8 +233,8 @@ public class HttpsHandler {
 
     }
 
-    private static void print_content(HttpsURLConnection con){
-        if(con!=null){
+    private static void print_content(HttpsURLConnection con) {
+        if (con != null) {
 
             try {
 
@@ -260,7 +245,7 @@ public class HttpsHandler {
 
                 String input;
 
-                while ((input = br.readLine()) != null){
+                while ((input = br.readLine()) != null) {
                     System.out.println(input);
                 }
                 br.close();

@@ -1,10 +1,13 @@
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringJoiner;
 
 public class MainController {
 
@@ -12,13 +15,9 @@ public class MainController {
     private static String logoutUrl = "";
     private static String contextName = "Authenticated+Context";
     private static String loginUrl = "https://localhost:9443/carbon/admin/login_action.jsp";
-    private static String zapHost = "http://localhost:8500";
-    private static String host = "https://localhost:9443/carbon";
 
-    private static JSONObject jsonObject;
-    private static String jsonString;
 
-    public static String runZapScan(String zapHost, String host) throws Exception {
+    static String runZapScan(String zapHost, String host) throws Exception {
 
         //Save a new session
 //        HttpRequestHandler.sendGetRequest(ZapClient.saveSession(zapHost, sessionPath));
@@ -58,71 +57,122 @@ public class MainController {
 //        //Set JSESSIONID
 //        //HttpRequestHandler.sendGetRequest(ZapClient.setSessionTokenValue(zapHost, host, sessionName, "JSESSIONID", ""));
 //
+
+        //Run Spider
+        boolean isSpiderSuccess = runSpider(zapHost, host);
+
+        if (isSpiderSuccess) {
+            //boolean isAjaxSpiderSuccess = runAjaxSpider(zapHost, host);
+            boolean isAjaxSpiderSuccess = true;
+
+            //Run AjaxSpider
+            if (isAjaxSpiderSuccess) {
+                boolean isActiveScanSuccess = runActiveScan(zapHost, host);
+
+                if (isActiveScanSuccess) {
+                    HttpResponse htmlFile = HttpRequestHandler.sendGetRequest(ZapClient.generateHtmlReport(zapHost));
+
+                    if (htmlFile.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                        boolean isHtmlReportSaved = HttpRequestHandler.saveResponseToFile(htmlFile, new File("/home/deshani/Documents/new.html"));
+
+                        if (isHtmlReportSaved) {
+                            return "success";
+                        } else {
+                            return "Report Not Saved";
+                        }
+                    }
+                } else {
+                    return "Active Scan Failed";
+                }
+            } else {
+                return "Ajax Spider Failed";
+            }
+        } else {
+            return "Spider Failed";
+        }
+
+        return zapHost;
+    }
+
+    private static boolean runSpider(String zapHost, String host) throws IOException, InterruptedException {
         //Run Spider
         HttpResponse spiderHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.spider(zapHost, host));
 
-        //Get ScanId of Spider
-        String spiderScanId = extractJsonValue(spiderHttpResponse, "scan");
+        if (spiderHttpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+            //Get ScanId of Spider
+            String spiderScanId = extractJsonValue(spiderHttpResponse, Constant.SCAN);
+            //Check Spider Status
+            HttpResponse spiderStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.spiderStatus(zapHost, spiderScanId));
 
-        //Check Spider Status
-        HttpResponse spiderStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.spiderStatus(zapHost, spiderScanId));
-        String spiderStatus = extractJsonValue(spiderStatusHttpResponse, "status");
+            if (spiderStatusHttpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                String spiderStatus = extractJsonValue(spiderStatusHttpResponse, Constant.STATUS);
 
-        while (Integer.parseInt(spiderStatus) < 100) {
-            Thread.sleep(1500);
+                while (Integer.parseInt(spiderStatus) < 100) {
+                    Thread.sleep(1500);
 
-            spiderStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.spiderStatus(zapHost, spiderScanId));
-            spiderStatus = extractJsonValue(spiderStatusHttpResponse, "status");
+                    spiderStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.spiderStatus(zapHost, spiderScanId));
+                    spiderStatus = extractJsonValue(spiderStatusHttpResponse, Constant.STATUS);
+                }
+                return true;
+            }
         }
+        return false;
+    }
 
+    private static boolean runAjaxSpider(String zapHost, String host) throws IOException, InterruptedException {
         //Run AJAX Spider
-        HttpRequestHandler.sendGetRequest(ZapClient.ajaxSpider(zapHost, host));
+        HttpResponse ajaxSpiderHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.ajaxSpider(zapHost, host));
 
-        //Check AJAX Spider Status
-        HttpResponse ajaxSpiderStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.ajaxSpiderStatus(zapHost));
-        String ajaxSpiderStatus = extractJsonValue(ajaxSpiderStatusHttpResponse, "status");
+        if (ajaxSpiderHttpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+            //Check AJAX Spider Status
+            HttpResponse ajaxSpiderStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.ajaxSpiderStatus(zapHost));
 
-        while (!ajaxSpiderStatus.equals("stopped")) {
-            Thread.sleep(2000);
+            if (ajaxSpiderStatusHttpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                String ajaxSpiderStatus = extractJsonValue(ajaxSpiderStatusHttpResponse, Constant.STATUS);
 
-            ajaxSpiderStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.ajaxSpiderStatus(zapHost));
-            ajaxSpiderStatus = extractJsonValue(ajaxSpiderStatusHttpResponse, "status");
+                while (!ajaxSpiderStatus.equals(Constant.STOPPED_STATE)) {
+                    Thread.sleep(2000);
+
+                    ajaxSpiderStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.ajaxSpiderStatus(zapHost));
+                    ajaxSpiderStatus = extractJsonValue(ajaxSpiderStatusHttpResponse, Constant.STATUS);
+                }
+                return true;
+            }
         }
+        return false;
+    }
 
+    private static boolean runActiveScan(String zapHost, String host) throws IOException, InterruptedException {
         //Run Active Scan
         HttpResponse activeScanHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.activeScan(zapHost, host));
 
-        //Get ScanId of Active Scan
-        String activeScanId = extractJsonValue(activeScanHttpResponse, "scan");
+        if (activeScanHttpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+            //Get ScanId of Active Scan
+            String activeScanId = extractJsonValue(activeScanHttpResponse, Constant.SCAN);
+            //Check Active Scan Status
+            HttpResponse activeScanStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.activeScanStatus(zapHost, activeScanId));
 
-        //Check Active Scan Status
-        HttpResponse activeScanStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.activeScanStatus(zapHost, activeScanId));
-        String activeScanStatus = extractJsonValue(activeScanStatusHttpResponse, "status");
+            if (activeScanStatusHttpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                String activeScanStatus = extractJsonValue(activeScanStatusHttpResponse, Constant.STATUS);
 
-        while (Integer.parseInt(activeScanStatus) < 100) {
-            Thread.sleep(2000);
-
-            activeScanStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.activeScanStatus(zapHost, activeScanId));
-            activeScanStatus = extractJsonValue(activeScanStatusHttpResponse, "status");
+                while (Integer.parseInt(activeScanStatus) < 100) {
+                    Thread.sleep(2000);
+                    activeScanStatusHttpResponse = HttpRequestHandler.sendGetRequest(ZapClient.activeScanStatus(zapHost, activeScanId));
+                    activeScanStatus = extractJsonValue(activeScanStatusHttpResponse, Constant.STATUS);
+                }
+                return true;
+            }
         }
 
-
-        HttpResponse htmlFile = HttpRequestHandler.sendGetRequest(ZapClient.generateHtmlReport(zapHost));
-
-        HttpRequestHandler.saveResponseToFile(htmlFile, new File("/home/deshani/Documents/new.html"));
-
-        return htmlFile.toString();
-
-
+        return false;
     }
 
     private static String extractJsonValue(HttpResponse httpResponse, String key) throws IOException {
-        jsonString = HttpRequestHandler.printResponse(httpResponse);
-
-        jsonObject = new JSONObject(jsonString);
-
+        String jsonString = HttpRequestHandler.printResponse(httpResponse);
+        JSONObject jsonObject = new JSONObject(jsonString);
         return jsonObject.getString(key);
     }
+
 
     public static void main(String[] args) throws Exception {
 
@@ -136,17 +186,15 @@ public class MainController {
         arguments.put("password", "admin");
 
 
-       /*
         StringJoiner sj = new StringJoiner("&");
-        for(Map.Entry<String,String> entry : arguments.entrySet())
-            sj.add((entry.getKey()) + "="
-                    + (URLEncoder.encode(entry.getValue(),"UTF-8")));
-                    */
+        for (Map.Entry<String, String> entry : arguments.entrySet())
+            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
+                    + URLEncoder.encode(entry.getValue(), "UTF-8"));
 
-        //String r = HttpsHandler.sendRequest(loginUrl, props, arguments, "POST", null);
-        //System.out.println(r);
 
-        runZapScan(zapHost, host);
+        String r = HttpsHandler.sendRequest(loginUrl, props, arguments, "POST", sj.toString());
+        System.out.println(r);
+
 
     }
 }
