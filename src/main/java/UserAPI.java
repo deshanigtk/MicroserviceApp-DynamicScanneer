@@ -11,13 +11,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("dynamicScanner/runScan")
 public class UserAPI {
 
-    private static String sessionPath = "/home/deshani/Documents/Session/";
-
     @RequestMapping(value = "zap", method = RequestMethod.GET)
     @ResponseBody
-    public String runZapScan(@RequestParam("zapHost") String zapHost, @RequestParam("host") String host) throws Exception {
-        return MainController.runZapScan(zapHost, host);
+    public void runZapScan(@RequestParam("scriptPath") String scriptPath, @RequestParam("zapHost") String zapHost, @RequestParam("host") String host, @RequestParam("sessionPath") String sessionPath) throws Exception {
+        MainController.runZapScript(new String[]{scriptPath, zapHost, host, sessionPath, Constant.LOGIN_SESSION, Constant.AUTHENTICATED_CONTEXT});
     }
-
 
 }

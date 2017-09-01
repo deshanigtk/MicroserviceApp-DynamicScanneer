@@ -34,8 +34,6 @@ public class HttpRequestHandler {
 
 
     static String printResponse(HttpResponse response) throws IOException {
-//        System.out.println("Response Code : "
-//                + response.getStatusLine().getStatusCode());
 
         BufferedReader rd = new BufferedReader(
                 new InputStreamReader(response.getEntity().getContent()));

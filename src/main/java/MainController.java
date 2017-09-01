@@ -17,15 +17,14 @@ public class MainController {
     private static String loginUrl = "https://localhost:9443/carbon/admin/login_action.jsp";
 
 
-    static String runZapScan(String zapHost, String host) throws Exception {
+    static String runZapScan(String zapHost, String host, String reportPath, String sessionPath) throws Exception {
 
         //Save a new session
 //        HttpRequestHandler.sendGetRequest(ZapClient.saveSession(zapHost, sessionPath));
 //
-
-
-        //Create empty session
-        // HttpRequestHandler.sendGetRequest(ZapClient.createEmptySession(zapHost, host, sessionName));
+//
+//        // Create empty session
+//        HttpRequestHandler.sendGetRequest(ZapClient.createEmptySession(zapHost, host, sessionName));
 
 //        //Login
 //        String login = "";
@@ -61,9 +60,9 @@ public class MainController {
         //Run Spider
         boolean isSpiderSuccess = runSpider(zapHost, host);
 
+        System.out.println(isSpiderSuccess);
         if (isSpiderSuccess) {
-            //boolean isAjaxSpiderSuccess = runAjaxSpider(zapHost, host);
-            boolean isAjaxSpiderSuccess = true;
+            boolean isAjaxSpiderSuccess = runAjaxSpider(zapHost, host);
 
             //Run AjaxSpider
             if (isAjaxSpiderSuccess) {
@@ -73,7 +72,7 @@ public class MainController {
                     HttpResponse htmlFile = HttpRequestHandler.sendGetRequest(ZapClient.generateHtmlReport(zapHost));
 
                     if (htmlFile.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                        boolean isHtmlReportSaved = HttpRequestHandler.saveResponseToFile(htmlFile, new File("/home/deshani/Documents/new.html"));
+                        boolean isHtmlReportSaved = HttpRequestHandler.saveResponseToFile(htmlFile, new File(reportPath));
 
                         if (isHtmlReportSaved) {
                             return "success";
@@ -163,7 +162,6 @@ public class MainController {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -174,27 +172,43 @@ public class MainController {
     }
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main1(String[] args) throws Exception {
 
-        Map<String, String> props = new HashMap<>();
-        props.put("Content-Type", "x-www-form-urlencoded");
-        props.put("User-Agent", "Mozilla/5.0");
+//        Map<String, String> props = new HashMap<>();
+//        props.put("Content-Type", "x-www-form-urlencoded");
+//        props.put("User-Agent", "Mozilla/5.0");
+//
+//
+//        Map<String, String> arguments = new HashMap<>();
+//        arguments.put("username", "admin");
+//        arguments.put("password", "admin");
+//
+//
+//        StringJoiner sj = new StringJoiner("&");
+//        for (Map.Entry<String, String> entry : arguments.entrySet())
+//            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
+//                    + URLEncoder.encode(entry.getValue(), "UTF-8"));
+//
+//
+//        String r = HttpsHandler.sendRequest(loginUrl, props, arguments, "POST", sj.toString());
+//        System.out.println(r);
+
+        String[] cmd = {"/home/deshani/Documents/myshell.sh",
+                "http://0.0.0.0:8500",
+                "https://172.17.0.1:9443/admin/carbon", "/home/deshani/Documents/newSession",
+                "Login+Session",
+                "Authenticated+context"};
+        Runtime.getRuntime().exec(cmd);
 
 
-        Map<String, String> arguments = new HashMap<>();
-        arguments.put("username", "admin");
-        arguments.put("password", "admin");
+    }
 
+    static void runZapScript(String[] command) {
 
-        StringJoiner sj = new StringJoiner("&");
-        for (Map.Entry<String, String> entry : arguments.entrySet())
-            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
-                    + URLEncoder.encode(entry.getValue(), "UTF-8"));
-
-
-        String r = HttpsHandler.sendRequest(loginUrl, props, arguments, "POST", sj.toString());
-        System.out.println(r);
-
-
+        try {
+            Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
