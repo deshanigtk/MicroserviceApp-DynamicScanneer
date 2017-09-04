@@ -32,20 +32,22 @@ public class ZapClient {
     private final HttpClient httpClient;
     private final String host;
     private final int port;
+    private final String scheme;
 
     private final static String GET = "GET";
     private final static String POST = "POST";
 
-    public ZapClient(String host, int port) {
+    public ZapClient(String host, int port, String scheme) {
         httpClient = HttpClientBuilder.create().build();
         this.host = host;
         this.port = port;
+        this.scheme = scheme;
     }
 
     public HttpResponse saveSession(String name, boolean overwrite, Boolean post)
             throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(SAVE_SESSION_PATH)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(SAVE_SESSION_PATH)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("name", name)
                 .addParameter("overwrite", overwrite ? "true" : "false")
@@ -56,7 +58,7 @@ public class ZapClient {
     public HttpResponse removeSession(String site, String session, boolean post)
             throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(REMOVE_SESSION_PATH)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(REMOVE_SESSION_PATH)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("site", site)
                 .addParameter("session", session)
@@ -67,7 +69,7 @@ public class ZapClient {
     public HttpResponse createEmptySession(String site, String session, boolean post)
             throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(CREATE_EMPTY_SESSION)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(CREATE_EMPTY_SESSION)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("site", site)
                 .addParameter("session", session)
@@ -78,7 +80,7 @@ public class ZapClient {
     public HttpResponse setSessionTokenValue(String site, String session, String sessionToken, String tokenValue,
                                              boolean post) throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(SET_SESSION_TOKEN_VALUE)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(SET_SESSION_TOKEN_VALUE)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("site", site)
                 .addParameter("session", session)
@@ -91,7 +93,7 @@ public class ZapClient {
     public HttpResponse excludeFromSpider(String regex, boolean post)
             throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(EXCLUDE_FROM_SCAN)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(EXCLUDE_FROM_SCAN)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("regex", regex)
                 .build();
@@ -101,7 +103,7 @@ public class ZapClient {
     public HttpResponse createNewContext(String contextName, boolean post)
             throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(NEW_CONTEXT)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(NEW_CONTEXT)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("contextName", contextName)
                 .build();
@@ -111,7 +113,7 @@ public class ZapClient {
     public HttpResponse includeInContext(String contextName, String regex, boolean post)
             throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(INCLUDE_IN_CONTEXT)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(INCLUDE_IN_CONTEXT)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("contextName", contextName)
                 .addParameter("regex", regex)
@@ -122,7 +124,7 @@ public class ZapClient {
     public HttpResponse spider(String url, String maxChildren, String recurse, String contextName, String subtreeOnly,
                                boolean post) throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(SPIDER_SCAN)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(scheme).setPath(SPIDER_SCAN)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("url", url)
                 .addParameter("maxChildren", maxChildren)
@@ -135,7 +137,7 @@ public class ZapClient {
 
     public HttpResponse spiderStatus(String scanId, boolean post) throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(SPIDER_STATUS)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(SPIDER_STATUS)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("scanId", scanId)
                 .build();
@@ -145,7 +147,7 @@ public class ZapClient {
     public HttpResponse ajaxSpider(String url, String inScope, String contextName, String subtreeOnly, boolean post)
             throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(AJAX_SPIDER_SCAN)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(AJAX_SPIDER_SCAN)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("url", url)
                 .addParameter("inScope", inScope)
@@ -157,7 +159,7 @@ public class ZapClient {
 
     public HttpResponse ajaxSpiderStatus(boolean post) throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(AJAX_SPIDER_STATUS)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(AJAX_SPIDER_STATUS)
                 .addParameter("formMethod", post ? POST : GET)
                 .build();
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
@@ -167,7 +169,7 @@ public class ZapClient {
                                    String postData, String contextId, boolean post)
             throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(ACTIVE_SCAN)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(ACTIVE_SCAN)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("url", url)
                 .addParameter("recurse", recurse)
@@ -182,7 +184,7 @@ public class ZapClient {
 
     public HttpResponse activeScanStatus(String scanId, boolean post) throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(ACTIVE_SCAN_STATUS)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(ACTIVE_SCAN_STATUS)
                 .addParameter("formMethod", post ? POST : GET)
                 .addParameter("scanId", scanId)
                 .build();
@@ -191,7 +193,7 @@ public class ZapClient {
 
     public HttpResponse generateHtmlReport(boolean post) throws IOException, URISyntaxException {
 
-        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setPath(HTML_REPORT)
+        URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(HTML_REPORT)
                 .addParameter("formMethod", post ? POST : GET)
                 .build();
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));

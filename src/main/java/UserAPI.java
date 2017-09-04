@@ -18,17 +18,17 @@ public class UserAPI {
     @ResponseBody
     public void login(@RequestParam("username") String username,
                       @RequestParam("password") String password,
-                      @RequestParam("port") int port) {
+                      @RequestParam("port") int port) throws Exception {
 
     }
 
     @RequestMapping(value = "zap", method = RequestMethod.GET)
     @ResponseBody
-    public void runZapScan(@RequestParam("scriptPath") String scriptPath,
-                           @RequestParam("zapHost") String zapHost,
-                           @RequestParam("host") String host,
-                           @RequestParam("sessionPath") String sessionPath) {
-
+    public void runZapScan(@RequestParam("zapHost") String zapHost,
+                           @RequestParam("zapPort") int zapPort,
+                           @RequestParam("urlListPath") String urlListPath,
+                           @RequestParam("reportFilePath") String reportFilePath) throws Exception {
+        MainController.runZapScan(zapHost, zapPort, "http", urlListPath, reportFilePath);
 
     }
 
@@ -46,7 +46,7 @@ public class UserAPI {
     @RequestMapping(value = "test", method = RequestMethod.GET)
     @ResponseBody
     public void login() throws Exception {
-        MainController.main2(new String[]{});
+        MainController.login();
     }
 
 
