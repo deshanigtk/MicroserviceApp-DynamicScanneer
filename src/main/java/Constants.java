@@ -1,4 +1,4 @@
-class Constant {
+class Constants {
 
     static final String STATUS = "status";
     static final String SCAN = "scan";
@@ -7,4 +7,5 @@ class Constant {
 
     static final String LOGIN_SESSION = "LoginSession";
     static final String AUTHENTICATED_CONTEXT = "AuthenticatedContext";
+    static final String ZIP_FILE_EXTENSION=".zip";
 }

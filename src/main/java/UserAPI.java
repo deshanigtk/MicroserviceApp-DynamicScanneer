@@ -10,19 +10,44 @@ import java.io.IOException;
 
 @Controller
 @EnableAutoConfiguration
-@RequestMapping("dynamicScanner/runScan")
+@RequestMapping("dynamicScanner")
 public class UserAPI {
+
+
+    @RequestMapping(value = "login-to-product", method = RequestMethod.GET)
+    @ResponseBody
+    public void login(@RequestParam("username") String username,
+                      @RequestParam("password") String password,
+                      @RequestParam("port") int port) {
+
+    }
 
     @RequestMapping(value = "zap", method = RequestMethod.GET)
     @ResponseBody
-    public void runZapScan(@RequestParam("scriptPath") String scriptPath, @RequestParam("zapHost") String zapHost, @RequestParam("host") String host, @RequestParam("sessionPath") String sessionPath){
-        MainController.runShellScript(new String[]{scriptPath, zapHost, host, sessionPath, Constant.LOGIN_SESSION, Constant.AUTHENTICATED_CONTEXT});
+    public void runZapScan(@RequestParam("scriptPath") String scriptPath,
+                           @RequestParam("zapHost") String zapHost,
+                           @RequestParam("host") String host,
+                           @RequestParam("sessionPath") String sessionPath) {
+
+
     }
 
     @RequestMapping(value = "uploadProductZipFile", method = RequestMethod.GET)
     @ResponseBody
-    public String uploadProductZipFile(@RequestParam("zipFile") String zipFile, @RequestParam("productPath") String productPath, @RequestParam("replaceExisting") boolean replaceExisting) throws IOException {
-        return MainController.extractZipFileAndReturnServerFile(zipFile, productPath, replaceExisting);
+    public void uploadProductZipFile(@RequestParam("zipFile") String zipFile,
+                                     @RequestParam("productPath") String productPath,
+                                     @RequestParam("replaceExisting") boolean replaceExisting) throws IOException {
+
+        String wso2ServerAbsolutePath = MainController.extractZipFileAndReturnServerFile(zipFile, productPath, replaceExisting);
+        Runtime.getRuntime().exec(new String[]{"chmod", "777", wso2ServerAbsolutePath});
+        MainController.runShellScript(new String[]{wso2ServerAbsolutePath});
     }
+
+    @RequestMapping(value = "test", method = RequestMethod.GET)
+    @ResponseBody
+    public void login() throws Exception {
+        MainController.main2(new String[]{});
+    }
+
 
 }

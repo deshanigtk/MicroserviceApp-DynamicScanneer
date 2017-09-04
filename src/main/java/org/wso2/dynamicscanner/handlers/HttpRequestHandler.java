@@ -1,3 +1,5 @@
+package org.wso2.dynamicscanner.handlers;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -16,7 +18,7 @@ public class HttpRequestHandler {
     private static HttpClient httpClient = HttpClientBuilder.create().build();
     private static List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
 
-    static HttpResponse sendGetRequest(String request) throws IOException {
+    public static HttpResponse sendGetRequest(String request) throws IOException {
         HttpGet httpGetRequest = new HttpGet(request);
         return httpClient.execute(httpGetRequest);
     }
@@ -33,7 +35,7 @@ public class HttpRequestHandler {
     }
 
 
-    static String printResponse(HttpResponse response) throws IOException {
+    public static String printResponse(HttpResponse response) throws IOException {
 
         BufferedReader rd = new BufferedReader(
                 new InputStreamReader(response.getEntity().getContent()));
@@ -46,7 +48,7 @@ public class HttpRequestHandler {
         return result.toString();
     }
 
-    static boolean saveResponseToFile(HttpResponse response, File destinationFile) throws Exception {
+    public static boolean saveResponseToFile(HttpResponse response, File destinationFile) throws Exception {
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             InputStream inputStream = entity.getContent();
