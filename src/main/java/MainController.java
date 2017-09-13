@@ -177,7 +177,7 @@ class MainController {
 
     }
 
-    public static void login() throws Exception {
+    public static void main1(String[] args) throws Exception {
 
         Map<String, String> props = new HashMap<>();
         props.put("Content-Type", "text/plain");

@@ -46,7 +46,7 @@ public class UserAPI {
     @RequestMapping(value = "test", method = RequestMethod.GET)
     @ResponseBody
     public void login() throws Exception {
-        MainController.login();
+        //MainController.login();
     }
 
 

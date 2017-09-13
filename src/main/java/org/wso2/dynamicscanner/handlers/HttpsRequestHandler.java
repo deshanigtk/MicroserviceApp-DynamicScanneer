@@ -74,8 +74,8 @@ public class HttpsRequestHandler {
             httpsURLConnection = (HttpsURLConnection) url.openConnection();
             httpsURLConnection.setSSLSocketFactory(sslSocketFactory);
             httpsURLConnection.setRequestMethod(method);
-            httpsURLConnection.setInstanceFollowRedirects(true);
-            httpsURLConnection.setUseCaches(false);
+//            httpsURLConnection.setInstanceFollowRedirects(true);
+//            httpsURLConnection.setUseCaches(false);
 
             if (requestHeaders != null) {
                 for (Map.Entry<String, String> entry : requestHeaders.entrySet()) {
