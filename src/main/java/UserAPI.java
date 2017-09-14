@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.wso2.dynamicscanner.scanners.ZapScanner;
 
 import java.io.IOException;
 
@@ -28,8 +29,9 @@ public class UserAPI {
                            @RequestParam("zapPort") int zapPort,
                            @RequestParam("urlListPath") String urlListPath,
                            @RequestParam("reportFilePath") String reportFilePath) throws Exception {
-        MainController.runZapScan(zapHost, zapPort, "http", urlListPath, reportFilePath);
 
+        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, "http", urlListPath, reportFilePath);
+        zapScanner.run();
     }
 
     @RequestMapping(value = "uploadProductZipFile", method = RequestMethod.GET)
@@ -38,9 +40,9 @@ public class UserAPI {
                                      @RequestParam("productPath") String productPath,
                                      @RequestParam("replaceExisting") boolean replaceExisting) throws IOException {
 
-        String wso2ServerAbsolutePath = MainController.extractZipFileAndReturnServerFile(zipFile, productPath, replaceExisting);
-        Runtime.getRuntime().exec(new String[]{"chmod", "777", wso2ServerAbsolutePath});
-        MainController.runShellScript(new String[]{wso2ServerAbsolutePath});
+//        String wso2ServerAbsolutePath = MainController.extractZipFileAndReturnServerFile(zipFile, productPath, replaceExisting);
+//        Runtime.getRuntime().exec(new String[]{"chmod", "777", wso2ServerAbsolutePath});
+//        MainController.runShellScript(new String[]{wso2ServerAbsolutePath});
     }
 
     @RequestMapping(value = "test", method = RequestMethod.GET)

@@ -1,8 +1,8 @@
 MainController.class
+org/wso2/dynamicscanner/scanners/ZapScanner.class
 org/wso2/dynamicscanner/handlers/HttpRequestHandler.class
 App.class
 org/wso2/dynamicscanner/handlers/HttpsRequestHandler.class
-ZapClientOld.class
 org/wso2/dynamicscanner/handlers/FileHandler.class
 org/wso2/dynamicscanner/clients/ZapClient.class
 UserAPI.class

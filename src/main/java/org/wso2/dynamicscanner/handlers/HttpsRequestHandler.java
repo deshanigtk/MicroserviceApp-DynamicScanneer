@@ -28,6 +28,8 @@ public class HttpsRequestHandler {
 
     private static boolean isInitialized = false;
 
+
+
     private static void init() {
         try {
             trustStore = KeyStore.getInstance(trustStoreType);
