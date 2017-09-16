@@ -29,7 +29,6 @@ public class HttpsRequestHandler {
     private static boolean isInitialized = false;
 
 
-
     private static void init() {
         try {
             trustStore = KeyStore.getInstance(trustStoreType);
@@ -47,75 +46,90 @@ public class HttpsRequestHandler {
 
             isInitialized = true;
 
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static String sendRequest(String link, Map<String, String> requestHeaders, Map<String, Object> requestParams,
-                                     String method, String data) throws RequestAbortedException, UnsupportedEncodingException {
+    public static HttpsURLConnection sendRequest(String link, Map<String, String> requestHeaders, Map<String, Object> requestParams,
+                                                 String method) throws RequestAbortedException, UnsupportedEncodingException {
 
         if (!isInitialized) {
             init();
         }
 
         StringBuilder postData = new StringBuilder();
-        for (Map.Entry<String, Object> param : requestParams.entrySet()) {
-            if (postData.length() != 0) {
-                postData.append('&');
+        if (requestParams != null) {
+            for (Map.Entry<String, Object> param : requestParams.entrySet()) {
+                if (postData.length() != 0) {
+                    postData.append('&');
+                }
+                postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
+                postData.append('=');
+                postData.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
             }
-            postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
-            postData.append('=');
-            postData.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
         }
-
         try {
             URL url = new URL(link + "?" + postData.toString());
 
             httpsURLConnection = (HttpsURLConnection) url.openConnection();
             httpsURLConnection.setSSLSocketFactory(sslSocketFactory);
             httpsURLConnection.setRequestMethod(method);
-//            httpsURLConnection.setInstanceFollowRedirects(true);
-//            httpsURLConnection.setUseCaches(false);
+            httpsURLConnection.setInstanceFollowRedirects(false);
 
             if (requestHeaders != null) {
                 for (Map.Entry<String, String> entry : requestHeaders.entrySet()) {
                     httpsURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
                 }
             }
-
-            StringBuilder builder = new StringBuilder();
-            builder.append(httpsURLConnection.getResponseCode())
-                    .append(" ")
-                    .append(httpsURLConnection.getResponseMessage())
-                    .append("\n");
-
-            Map<String, List<String>> headerFields = httpsURLConnection.getHeaderFields();
-            for (Map.Entry<String, List<String>> entry : headerFields.entrySet()) {
-                if (entry.getKey() == null)
-                    continue;
-                builder.append(entry.getKey())
-                        .append(": ");
-
-                List<String> headerValues = entry.getValue();
-
-                Iterator<String> it = headerValues.iterator();
-                if (it.hasNext()) {
-                    builder.append(it.next());
-
-                    while (it.hasNext()) {
-                        builder.append(", ")
-                                .append(it.next());
-                    }
-                }
-                builder.append("\n");
-            }
-
-            return builder.toString();
+            return httpsURLConnection;
 
         } catch (IOException e) {
             throw new RequestAbortedException("Https request aborted");
         }
+    }
+
+    public static String printResponse(HttpsURLConnection httpsURLConnection) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        builder.append(httpsURLConnection.getResponseCode())
+                .append(" ")
+                .append(httpsURLConnection.getResponseMessage())
+                .append("\n");
+
+        Map<String, List<String>> headerFields = httpsURLConnection.getHeaderFields();
+        for (Map.Entry<String, List<String>> entry : headerFields.entrySet()) {
+            if (entry.getKey() == null)
+                continue;
+            builder.append(entry.getKey())
+                    .append(": ");
+
+            List<String> headerValues = entry.getValue();
+
+            Iterator<String> it = headerValues.iterator();
+            if (it.hasNext()) {
+                builder.append(it.next());
+
+                while (it.hasNext()) {
+                    builder.append(", ")
+                            .append(it.next());
+                }
+            }
+            builder.append("\n");
+        }
+
+        return builder.toString();
+    }
+
+    public static List<String> getResponseValue(String key, HttpsURLConnection httpsURLConnection) {
+        Map<String, List<String>> headerFields = httpsURLConnection.getHeaderFields();
+        for (Map.Entry<String, List<String>> entry : headerFields.entrySet()) {
+            if (entry.getKey() == null)
+                continue;
+
+            if (entry.getKey().equals(key)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 }

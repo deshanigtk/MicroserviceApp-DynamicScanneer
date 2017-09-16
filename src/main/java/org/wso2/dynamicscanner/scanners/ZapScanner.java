@@ -16,7 +16,9 @@ package org.wso2.dynamicscanner.scanners;/*
 * under the License.
 */
 
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -24,177 +26,218 @@ import org.slf4j.LoggerFactory;
 import org.wso2.dynamicscanner.clients.ZapClient;
 import org.wso2.dynamicscanner.handlers.FileHandler;
 import org.wso2.dynamicscanner.handlers.HttpRequestHandler;
+import org.wso2.dynamicscanner.handlers.HttpsRequestHandler;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Observable;
+import java.util.*;
 
 public class ZapScanner extends Observable implements Runnable {
 
     private String wso2serverFileAbsolutePath;
-    private String zapHost;
-    private int zapPort;
     private String urlListPath;
     private String reportFilePath;
 
-    private final String DEFAULT_SCHEME = "http";
+    private final String HTTP_SCHEME = "http";
+    private final String HTTPS_SCHEME = "https";
 
-    private String scheme = DEFAULT_SCHEME;
+    private final String GET = "GET";
+    private final String POST = "POST";
+
+    private final String sessionName = "Session-02";
+
+    private String productHost;
+    private int productPort;
+    private String productLoginUrl;
+    private Map<String, Object> loginCredentials;
+    private String productLogoutUrl;
+
+    private ZapClient zapClient;
+
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public void run() {
         try {
-            System.out.println("start scan before");
-            startScan(zapHost, zapPort, scheme, urlListPath, reportFilePath);
-            System.out.println("start scan after");
+            startScan();
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.info(e.toString(), e);
         }
     }
 
-    public ZapScanner(String zapHost, int zapPort, String scheme, String urlListPath, String reportFilePath) {
-        this.zapHost = zapHost;
-        this.zapPort = zapPort;
-        this.scheme = scheme;
+    public ZapScanner(String zapHost, int zapPort, String productHost, int productPort, String productLoginUrl, String productLogoutUrl,
+                      Map<String, Object> loginCredentials, String urlListPath, String reportFilePath) throws URISyntaxException {
+        this.productHost = productHost;
+        this.productPort = productPort;
+        this.productLoginUrl = productLoginUrl;
+        this.productLogoutUrl = productLogoutUrl;
+        this.loginCredentials = loginCredentials;
+
         this.urlListPath = urlListPath;
         this.reportFilePath = reportFilePath;
+        this.zapClient = new ZapClient(zapHost, zapPort, HTTP_SCHEME);
     }
 
-    private void startScan(String zapHost, int zapPort, String scheme, String urlListPath, String reportFilePath) throws Exception {
-        LOGGER.info("Starting the Scanning Process ");
-        ZapClient zapClient = new ZapClient(zapHost, zapPort, scheme);
+    private void startScan() throws Exception {
+        LOGGER.info("Starting ZAP scanning process ");
 
-        runSpider(zapHost, zapPort, scheme, urlListPath);
-        runAjaxSpider(zapHost, zapPort, scheme, urlListPath);
-        runActiveScan(zapHost, zapPort, scheme, urlListPath);
+        URI productUri = (new URIBuilder()).setHost(productHost).setPort(productPort).setScheme(HTTPS_SCHEME).build();
+
+        //Create an empty session
+        HttpResponse createEmptySessionResponse = zapClient.createEmptySession(productUri.toString(), sessionName, false);
+        LOGGER.info("Creating empty session " + HttpRequestHandler.printResponse(createEmptySessionResponse));
+
+        //login to wso2 server
+        Map<String, String> props = new HashMap<>();
+        props.put("Content-Type", "text/plain");
+
+        URI loginUri = (new URIBuilder()).setHost(productHost).setPort(productPort).setScheme("https").setPath(productLoginUrl).build();
+        System.out.println(loginUri);
+        HttpsURLConnection httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
+        List<String> setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
+
+        System.out.println(setCookieResponseList);
+        assert setCookieResponseList != null;
+        String setCookieResponse = setCookieResponseList.get(0);
+        String jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
+
+        HttpResponse setSessionTokenResponse = zapClient.setSessionTokenValue(productUri.toString(), sessionName, "JSESSIONID", jsessionId, false);
+        LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
+
+        //Exclude logout url from spider
+        URI logoutUri = (new URIBuilder()).setHost(productHost).setPort(productPort).setScheme("https").setPath(productLogoutUrl)
+                .build();
+        LOGGER.info("Logout URI: " + logoutUri.toString());
+        HttpsURLConnection httpsURLConnectionLogout = HttpsRequestHandler.sendRequest(logoutUri.toString(), props, null, POST);
+        LOGGER.info("Response of sending logout request to server" + HttpsRequestHandler.printResponse(httpsURLConnectionLogout));
+
+        HttpResponse excludeFromSpiderResponse = zapClient.excludeFromSpider(logoutUri.toString(), false);
+        LOGGER.info("Exclude logout from spider response: " + HttpRequestHandler.printResponse(excludeFromSpiderResponse));
+
+        //Remove previously created session
+        HttpResponse removeSessionResponse = zapClient.removeSession(productUri.toString(), sessionName, false);
+        LOGGER.info("Remove Session Response" + HttpRequestHandler.printResponse(removeSessionResponse));
+
+        //Create an empty session
+        createEmptySessionResponse = zapClient.createEmptySession(productUri.toString(), sessionName, false);
+        LOGGER.info("Creating empty session" + HttpRequestHandler.printResponse(createEmptySessionResponse));
+
+        httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
+        setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
+
+        assert setCookieResponseList != null;
+        setCookieResponse = setCookieResponseList.get(0);
+        jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
+
+        setSessionTokenResponse = zapClient.setSessionTokenValue(productUri.toString(), sessionName, "JSESSIONID", jsessionId, false);
+        LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
+
+        runSpider();
+        runAjaxSpider();
+        runActiveScan();
 
         HttpResponse generatedHtmlReport = zapClient.generateHtmlReport(false);
         HttpRequestHandler.saveResponseToFile(generatedHtmlReport, new File(reportFilePath));
 
     }
 
-    private void runSpider(String zapHost, int zapPort, String scheme, String urlFilePath) throws IOException, InterruptedException, URISyntaxException {
-        System.out.println("spiderrr");
-        ZapClient zapClient = new ZapClient(zapHost, zapPort, scheme);
+    private void runSpider() throws IOException, InterruptedException, URISyntaxException {
         BufferedReader bufferedReader;
         ArrayList<String> spiderScanIds = new ArrayList<>();
-        int i = 0;
 
         try {
-            bufferedReader = new BufferedReader(new FileReader(urlFilePath));
+            bufferedReader = new BufferedReader(new FileReader(urlListPath));
             String line;
 
             while ((line = bufferedReader.readLine()) != null) {
-                LOGGER.info("Reading URL list of wso2 product: ", line);
+                LOGGER.info("Reading URL list of wso2 product: " + line);
                 try {
                     HttpResponse spiderResponse = zapClient.spider(line, "", "", "", "", false);
-                    LOGGER.info("Spider HTTP Response", spiderResponse.getEntity().getContent());
-                    System.out.println(spiderResponse.getEntity().getContent());
+                    LOGGER.info("Spider HTTP Response");
+
                     String scanId = extractJsonValue(spiderResponse, "scan");
                     spiderScanIds.add(scanId);
-                    LOGGER.info("Adding ScanIds of Spider Scans to array: ", scanId);
-                    i++;
+                    LOGGER.info("Adding ScanIds of Spider Scans to array: " + scanId);
+//                    Thread.sleep(500);
 
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
-                    LOGGER.info( e.getReason(), e);
+                    LOGGER.info(e.getReason(), e);
                 }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-            LOGGER.info( e.toString(), e);
+            LOGGER.info(e.toString(), e);
         }
         for (String scanId : spiderScanIds) {
             HttpResponse spiderStatusResponse = zapClient.spiderStatus(scanId, false);
-            LOGGER.info("Spider HTTP Response", spiderStatusResponse.getEntity().getContent());
+            LOGGER.info("Sending request to check spider status");
 
             while (Integer.parseInt(extractJsonValue(spiderStatusResponse, "status")) < 100) {
                 spiderStatusResponse = zapClient.spiderStatus(scanId, false);
-                LOGGER.info("Spider HTTP Response", spiderStatusResponse.getEntity().getContent());
+                LOGGER.info("Sending request to check spider status" + spiderStatusResponse);
                 Thread.sleep(1000);
             }
         }
     }
 
-    private void runAjaxSpider(String zapHost, int zapPort, String scheme, String urlFilePath) throws IOException, InterruptedException, URISyntaxException {
-        ZapClient zapClient = new ZapClient(zapHost, zapPort, scheme);
+    private void runAjaxSpider() throws IOException, InterruptedException, URISyntaxException {
+        URI productUri = (new URIBuilder()).setHost(productHost).setPort(productPort).setScheme(HTTPS_SCHEME).build();
+        try {
+            HttpResponse ajaxSpiderResponse = zapClient.ajaxSpider(productUri.toString(), "", "", "", false);
+            LOGGER.info("Starting Ajax spider " + ajaxSpiderResponse);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            LOGGER.info(e.toString(), e);
+        }
+
+        HttpResponse ajaxSpiderStatusResponse = zapClient.ajaxSpiderStatus(false);
+        System.out.println(ajaxSpiderStatusResponse);
+        LOGGER.info("Ajax spider status" + ajaxSpiderStatusResponse);
+
+        while (!extractJsonValue(ajaxSpiderStatusResponse, "status").equals("stopped")) {
+            ajaxSpiderStatusResponse = zapClient.ajaxSpiderStatus(false);
+            LOGGER.info("Ajax spider status" + ajaxSpiderStatusResponse);
+            Thread.sleep(3000);
+        }
+    }
+
+    private void runActiveScan() throws IOException, InterruptedException, URISyntaxException {
         BufferedReader bufferedReader;
-        int i = 0;
+        ArrayList<String> activeScanIds = new ArrayList<>();
 
         try {
-            bufferedReader = new BufferedReader(new FileReader(urlFilePath));
+            bufferedReader = new BufferedReader(new FileReader(urlListPath));
             String line;
 
             while ((line = bufferedReader.readLine()) != null) {
+                LOGGER.info("Reading URL list of wso2 product: " + line);
                 try {
-                    HttpResponse ajaxSpiderResponse = zapClient.ajaxSpider(line, "", "", "", false);
-                    LOGGER.info("AJAX Spider HTTP Response", ajaxSpiderResponse.getEntity().getContent());
+                    HttpResponse activeScanResponse = zapClient.activeScan(line, "", "", "", "", "", "", false);
+                    String scanId = extractJsonValue(activeScanResponse, "scan");
+                    activeScanIds.add(scanId);
+                    LOGGER.info("Adding ScanIds of Active Scans to array: " + scanId);
+                    Thread.sleep(500);
 
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                     LOGGER.info(e.toString(), e);
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
-            LOGGER.info( e.toString(), e);
-        }
-
-        HttpResponse ajaxSpiderStatusResponse = zapClient.ajaxSpiderStatus(false);
-        LOGGER.info("AJAX Spider HTTP Response", ajaxSpiderStatusResponse.getEntity().getContent());
-
-        while (!extractJsonValue(ajaxSpiderStatusResponse, "status").equals("stopped")) {
-            ajaxSpiderStatusResponse = zapClient.ajaxSpiderStatus(false);
-            LOGGER.info( "AJAX Spider HTTP Response", ajaxSpiderStatusResponse.getEntity().getContent());
-            Thread.sleep(1000);
-        }
-    }
-
-    private void runActiveScan(String zapHost, int zapPort, String scheme, String urlFilePath) throws IOException, InterruptedException, URISyntaxException {
-        ZapClient zapClient = new ZapClient(zapHost, zapPort, scheme);
-        BufferedReader bufferedReader;
-        ArrayList<String> activeScanIds = new ArrayList<>();
-        int i = 0;
-
-        try {
-            bufferedReader = new BufferedReader(new FileReader(urlFilePath));
-            String line;
-
-            while ((line = bufferedReader.readLine()) != null) {
-                LOGGER.info("Reading URL list of wso2 product: ", line);
-                try {
-                    HttpResponse activeScanResponse = zapClient.activeScan(line, "", "", "", "", "", "", false);
-                    LOGGER.info("Active Scan Response", activeScanResponse.getEntity().getContent());
-                    String scanId = extractJsonValue(activeScanResponse, "scan");
-                    activeScanIds.add(scanId);
-                    LOGGER.info("Adding ScanIds of Active Scans to array: ", scanId);
-                    i++;
-
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                    LOGGER.info( e.toString(), e);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            LOGGER.info( e.toString(), e);
+            LOGGER.info(e.toString(), e);
         }
 
         for (String scanId : activeScanIds) {
             HttpResponse activeScanStatusResponse = zapClient.activeScanStatus(scanId, false);
-            LOGGER.info("Active Scan Status Response", activeScanStatusResponse.getEntity().getContent());
 
             while (Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status")) < 100) {
                 activeScanStatusResponse = zapClient.activeScanStatus(scanId, false);
-                LOGGER.info( "Active Scan Status Response", activeScanStatusResponse.getEntity().getContent());
                 Thread.sleep(1000);
             }
         }
@@ -229,6 +272,5 @@ public class ZapScanner extends Observable implements Runnable {
         JSONObject jsonObject = new JSONObject(jsonString);
         return jsonObject.getString(key);
     }
-
 
 }

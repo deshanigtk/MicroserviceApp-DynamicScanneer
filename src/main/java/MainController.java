@@ -52,144 +52,21 @@ class MainController {
 //            }
 //        }
 //    }
+
+//    public static void main(String[] args) throws Exception {
 //
-//    private static String extractJsonValue(HttpResponse httpResponse, String key) throws IOException {
-//        String jsonString = HttpRequestHandler.printResponse(httpResponse);
-//        JSONObject jsonObject = new JSONObject(jsonString);
-//        return jsonObject.getString(key);
-//    }
-//
-//
-//    private static void runSpider(String zapHost, int zapPort, String scheme, String urlFilePath) throws IOException, InterruptedException, URISyntaxException {
-//
-//        ZapClient zapClient = new ZapClient(zapHost, zapPort, scheme);
-//        BufferedReader bufferedReader;
-//        ArrayList<String> spiderScanIds = new ArrayList<>();
-//        int i = 0;
-//
-//        try {
-//            bufferedReader = new BufferedReader(new FileReader(urlFilePath));
-//            String line;
-//
-//            while ((line = bufferedReader.readLine()) != null) {
-//                System.out.println(line);
-//                try {
-//                    HttpResponse spiderResponse = zapClient.spider(line, "", "", "", "", false);
-//                    String scanId = extractJsonValue(spiderResponse, "scan");
-//                    spiderScanIds.add(scanId);
-//                    System.out.println(i);
-//                    i++;
-//
-//                } catch (URISyntaxException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        for (String scanId : spiderScanIds) {
-//            HttpResponse spiderStatusResponse = zapClient.spiderStatus(scanId, false);
-//            while (Integer.parseInt(extractJsonValue(spiderStatusResponse, "status")) < 100) {
-//                spiderStatusResponse = zapClient.spiderStatus(scanId, false);
-//                Thread.sleep(1000);
-//            }
-//        }
-//    }
-//
-//    private static void runAjaxSpider(String zapHost, int zapPort, String scheme, String urlFilePath) throws IOException, InterruptedException, URISyntaxException {
-//
-//        ZapClient zapClient = new ZapClient(zapHost, zapPort, scheme);
-//        BufferedReader bufferedReader;
-//        int i = 0;
-//
-//        try {
-//            bufferedReader = new BufferedReader(new FileReader(urlFilePath));
-//            String line;
-//
-//            while ((line = bufferedReader.readLine()) != null) {
-//                try {
-//                    HttpResponse ajaxSpiderResponse = zapClient.ajaxSpider(line, "", "", "", false);
-//
-//                } catch (URISyntaxException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+//        Map<String, String> props = new HashMap<>();
+//        props.put("Content-Type", "text/plain");
 //
 //
-//        HttpResponse ajaxSpiderStatusResponse = zapClient.ajaxSpiderStatus(false);
-//        while (!extractJsonValue(ajaxSpiderStatusResponse, "status").equals("stopped")) {
-//            ajaxSpiderStatusResponse = zapClient.ajaxSpiderStatus(false);
-//            Thread.sleep(1000);
-//        }
-//    }
-//
-//    private static void runActiveScan(String zapHost, int zapPort, String scheme, String urlFilePath) throws IOException, InterruptedException, URISyntaxException {
-//
-//        ZapClient zapClient = new ZapClient(zapHost, zapPort, scheme);
-//        BufferedReader bufferedReader;
-//        ArrayList<String> activeScanIds = new ArrayList<>();
-//        int i = 0;
-//
-//        try {
-//            bufferedReader = new BufferedReader(new FileReader(urlFilePath));
-//            String line;
-//
-//            while ((line = bufferedReader.readLine()) != null) {
-//                System.out.println(line);
-//                try {
-//                    HttpResponse activeScanResponse = zapClient.activeScan(line, "", "", "", "", "", "", false);
-//                    String scanId = extractJsonValue(activeScanResponse, "scan");
-//                    activeScanIds.add(scanId);
-//                    i++;
-//
-//                } catch (URISyntaxException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        for (String scanId : activeScanIds) {
-//            HttpResponse activeScanStatusResponse = zapClient.activeScanStatus(scanId, false);
-//            while (Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status")) < 100) {
-//                activeScanStatusResponse = zapClient.activeScanStatus(scanId, false);
-//                Thread.sleep(1000);
-//            }
-//        }
-//    }
+//        Map<String, Object> arguments = new HashMap<>();
+//        arguments.put("username", "admin");
+//        arguments.put("password", "admin");
 //
 //
-//    public static void runZapScan(String zapHost, int zapPort, String scheme, String urlListPath, String reportFilePath) throws Exception {
-//        ZapClient zapClient = new ZapClient(zapHost, zapPort, "http");
+//        //String r = HttpsRequestHandler.sendRequest("https://localhost:9443/carbon/admin/login_action.jsp", props, arguments, "POST", null);
+//        //System.out.println(r);
 //
-//        runSpider(zapHost, zapPort, scheme, urlListPath);
-//        runAjaxSpider(zapHost, zapPort, scheme, urlListPath);
-//        runActiveScan(zapHost, zapPort, scheme, urlListPath);
-//
-//        HttpResponse generatedHtmlReport = zapClient.generateHtmlReport(false);
-//        HttpRequestHandler.saveResponseToFile(generatedHtmlReport, new File(reportFilePath));
 //
 //    }
-
-    public static void main1(String[] args) throws Exception {
-
-        Map<String, String> props = new HashMap<>();
-        props.put("Content-Type", "text/plain");
-
-
-        Map<String, Object> arguments = new HashMap<>();
-        arguments.put("username", "admin");
-        arguments.put("password", "admin");
-
-
-        String r = HttpsRequestHandler.sendRequest("https://localhost:9443/carbon/admin/login_action.jsp", props, arguments, "POST", null);
-        System.out.println(r);
-    }
 }

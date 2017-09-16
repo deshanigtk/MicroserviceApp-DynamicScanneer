@@ -187,8 +187,8 @@ public class ZapClient {
         URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(AJAX_SPIDER_STATUS)
                 .addParameter("formMethod", post ? POST : GET)
                 .build();
+        System.out.println(uri.toString());
 
-        LOGGER.log(Level.FINE, "URI to check AjaxSpiderStatus", uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 

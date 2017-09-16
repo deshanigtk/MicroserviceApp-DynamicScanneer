@@ -6,7 +6,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.wso2.dynamicscanner.scanners.ZapScanner;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 
 @Controller
@@ -27,11 +32,32 @@ public class UserAPI {
     @ResponseBody
     public void runZapScan(@RequestParam("zapHost") String zapHost,
                            @RequestParam("zapPort") int zapPort,
+                           @RequestParam("productHost") String productHost,
+                           @RequestParam("productPort") int productPort,
+                           @RequestParam("productLoginUrl") String productLoginUrl,
+                           @RequestParam("productLogoutUrl") String productLogoutUrl,
                            @RequestParam("urlListPath") String urlListPath,
                            @RequestParam("reportFilePath") String reportFilePath) throws Exception {
+        Map<String, Object> credentials = new HashMap<>();
+        credentials.put("username", "admin");
+        credentials.put("password", "admin");
+        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, productHost, productPort, productLoginUrl,productLogoutUrl,
+                credentials, urlListPath, reportFilePath);
 
-        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, "http", urlListPath, reportFilePath);
-        zapScanner.run();
+        Observer zapObserver = new Observer() {
+            String message;
+
+            @Override
+            public void update(Observable o, Object arg) {
+                if (new File(reportFilePath).exists()) {
+                    message = "success";
+                } else {
+                    message = "scan failed";
+                }
+            }
+        };
+        zapScanner.addObserver(zapObserver);
+        new Thread(zapScanner).start();
     }
 
     @RequestMapping(value = "uploadProductZipFile", method = RequestMethod.GET)
@@ -48,7 +74,7 @@ public class UserAPI {
     @RequestMapping(value = "test", method = RequestMethod.GET)
     @ResponseBody
     public void login() throws Exception {
-        //MainController.login();
+
     }
 
 

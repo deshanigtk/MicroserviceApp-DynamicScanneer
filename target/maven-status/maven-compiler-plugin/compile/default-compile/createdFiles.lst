@@ -1,6 +1,7 @@
 MainController.class
 org/wso2/dynamicscanner/scanners/ZapScanner.class
 org/wso2/dynamicscanner/handlers/HttpRequestHandler.class
+UserAPI$1.class
 App.class
 org/wso2/dynamicscanner/handlers/HttpsRequestHandler.class
 org/wso2/dynamicscanner/handlers/FileHandler.class
