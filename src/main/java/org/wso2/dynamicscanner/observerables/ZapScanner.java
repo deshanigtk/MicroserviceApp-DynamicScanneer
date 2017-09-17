@@ -1,4 +1,4 @@
-package org.wso2.dynamicscanner.scanners;/*
+package org.wso2.dynamicscanner.observerables;/*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -16,7 +16,6 @@ package org.wso2.dynamicscanner.scanners;/*
 * under the License.
 */
 
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
@@ -36,7 +35,6 @@ import java.util.*;
 
 public class ZapScanner extends Observable implements Runnable {
 
-    private String wso2serverFileAbsolutePath;
     private String urlListPath;
     private String reportFilePath;
 
@@ -48,7 +46,8 @@ public class ZapScanner extends Observable implements Runnable {
 
     private final String sessionName = "Session-02";
 
-    private String productHost;
+    private String productHostRelativeToZap;
+    private String productHostRelativeToThis;
     private int productPort;
     private String productLoginUrl;
     private Map<String, Object> loginCredentials;
@@ -57,6 +56,7 @@ public class ZapScanner extends Observable implements Runnable {
     private ZapClient zapClient;
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private URI productUri;
 
     @Override
     public void run() {
@@ -68,9 +68,10 @@ public class ZapScanner extends Observable implements Runnable {
         }
     }
 
-    public ZapScanner(String zapHost, int zapPort, String productHost, int productPort, String productLoginUrl, String productLogoutUrl,
+    public ZapScanner(String zapHost, int zapPort, String productHostRelativeToZap, String productHostRelativeToThis, int productPort, String productLoginUrl, String productLogoutUrl,
                       Map<String, Object> loginCredentials, String urlListPath, String reportFilePath) throws URISyntaxException {
-        this.productHost = productHost;
+        this.productHostRelativeToZap = productHostRelativeToZap;
+        this.productHostRelativeToThis = productHostRelativeToThis;
         this.productPort = productPort;
         this.productLoginUrl = productLoginUrl;
         this.productLogoutUrl = productLogoutUrl;
@@ -79,12 +80,12 @@ public class ZapScanner extends Observable implements Runnable {
         this.urlListPath = urlListPath;
         this.reportFilePath = reportFilePath;
         this.zapClient = new ZapClient(zapHost, zapPort, HTTP_SCHEME);
+        productUri = (new URIBuilder()).setHost(productHostRelativeToZap).setPort(productPort).setScheme(HTTPS_SCHEME).build();
+
     }
 
     private void startScan() throws Exception {
         LOGGER.info("Starting ZAP scanning process ");
-
-        URI productUri = (new URIBuilder()).setHost(productHost).setPort(productPort).setScheme(HTTPS_SCHEME).build();
 
         //Create an empty session
         HttpResponse createEmptySessionResponse = zapClient.createEmptySession(productUri.toString(), sessionName, false);
@@ -94,12 +95,10 @@ public class ZapScanner extends Observable implements Runnable {
         Map<String, String> props = new HashMap<>();
         props.put("Content-Type", "text/plain");
 
-        URI loginUri = (new URIBuilder()).setHost(productHost).setPort(productPort).setScheme("https").setPath(productLoginUrl).build();
-        System.out.println(loginUri);
+        URI loginUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(productLoginUrl).build();
         HttpsURLConnection httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
         List<String> setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
 
-        System.out.println(setCookieResponseList);
         assert setCookieResponseList != null;
         String setCookieResponse = setCookieResponseList.get(0);
         String jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
@@ -108,7 +107,7 @@ public class ZapScanner extends Observable implements Runnable {
         LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
 
         //Exclude logout url from spider
-        URI logoutUri = (new URIBuilder()).setHost(productHost).setPort(productPort).setScheme("https").setPath(productLogoutUrl)
+        URI logoutUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(productLogoutUrl)
                 .build();
         LOGGER.info("Logout URI: " + logoutUri.toString());
         HttpsURLConnection httpsURLConnectionLogout = HttpsRequestHandler.sendRequest(logoutUri.toString(), props, null, POST);
@@ -155,13 +154,12 @@ public class ZapScanner extends Observable implements Runnable {
             while ((line = bufferedReader.readLine()) != null) {
                 LOGGER.info("Reading URL list of wso2 product: " + line);
                 try {
-                    HttpResponse spiderResponse = zapClient.spider(line, "", "", "", "", false);
+                    HttpResponse spiderResponse = zapClient.spider(productUri.toString() + line, "", "", "", "", false);
                     LOGGER.info("Spider HTTP Response");
 
                     String scanId = extractJsonValue(spiderResponse, "scan");
                     spiderScanIds.add(scanId);
                     LOGGER.info("Adding ScanIds of Spider Scans to array: " + scanId);
-//                    Thread.sleep(500);
 
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
@@ -186,7 +184,7 @@ public class ZapScanner extends Observable implements Runnable {
     }
 
     private void runAjaxSpider() throws IOException, InterruptedException, URISyntaxException {
-        URI productUri = (new URIBuilder()).setHost(productHost).setPort(productPort).setScheme(HTTPS_SCHEME).build();
+        URI productUri = (new URIBuilder()).setHost(productHostRelativeToZap).setPort(productPort).setScheme(HTTPS_SCHEME).build();
         try {
             HttpResponse ajaxSpiderResponse = zapClient.ajaxSpider(productUri.toString(), "", "", "", false);
             LOGGER.info("Starting Ajax spider " + ajaxSpiderResponse);
@@ -217,7 +215,7 @@ public class ZapScanner extends Observable implements Runnable {
             while ((line = bufferedReader.readLine()) != null) {
                 LOGGER.info("Reading URL list of wso2 product: " + line);
                 try {
-                    HttpResponse activeScanResponse = zapClient.activeScan(line, "", "", "", "", "", "", false);
+                    HttpResponse activeScanResponse = zapClient.activeScan(productUri.toString() + line, "", "", "", "", "", "", false);
                     String scanId = extractJsonValue(activeScanResponse, "scan");
                     activeScanIds.add(scanId);
                     LOGGER.info("Adding ScanIds of Active Scans to array: " + scanId);
@@ -239,30 +237,6 @@ public class ZapScanner extends Observable implements Runnable {
             while (Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status")) < 100) {
                 activeScanStatusResponse = zapClient.activeScanStatus(scanId, false);
                 Thread.sleep(1000);
-            }
-        }
-    }
-
-    String extractZipFileAndReturnServerFile(String fileName, String productPath, boolean replaceExisting) throws IOException {
-        if (new File(productPath).exists() && replaceExisting) {
-            FileUtils.deleteDirectory(new File(productPath));
-        }
-        FileHandler.extractFolder(productPath + File.separator + fileName);
-
-        String folderName = fileName.substring(0, fileName.length() - 4);
-        findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
-        return wso2serverFileAbsolutePath;
-    }
-
-    void findFile(File parentDirectory, String fileToFind) {
-        File[] files = parentDirectory.listFiles();
-        for (File file : files) {
-            if (file.getName().equals(fileToFind)) {
-                wso2serverFileAbsolutePath = file.getAbsolutePath();
-                break;
-            }
-            if (file.isDirectory()) {
-                findFile(file, fileToFind);
             }
         }
     }

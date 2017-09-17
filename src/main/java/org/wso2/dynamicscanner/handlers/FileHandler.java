@@ -1,5 +1,11 @@
 package org.wso2.dynamicscanner.handlers;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.DefaultHttpClient;
 import sun.security.pkcs11.wrapper.Constants;
 
 import java.io.*;
@@ -102,5 +108,18 @@ public class FileHandler {
         }
         //FileUtils.deleteDirectory(new File(zipFile));
         return fileName.substring(0, fileName.length() - 4);
+    }
+
+    public static void test(String url, File file) throws IOException {
+
+        HttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost(url);
+
+        MultipartEntity entity = new MultipartEntity();
+        entity.addPart("file", new FileBody(file));
+        post.setEntity(entity);
+
+        HttpResponse response = client.execute(post);
+        System.out.println(response);
     }
 }

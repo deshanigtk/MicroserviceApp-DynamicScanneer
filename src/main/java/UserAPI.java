@@ -4,7 +4,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.wso2.dynamicscanner.scanners.ZapScanner;
+import org.wso2.dynamicscanner.observerables.Wso2ServerHandler;
+import org.wso2.dynamicscanner.observerables.ZapScanner;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +33,8 @@ public class UserAPI {
     @ResponseBody
     public void runZapScan(@RequestParam("zapHost") String zapHost,
                            @RequestParam("zapPort") int zapPort,
-                           @RequestParam("productHost") String productHost,
+                           @RequestParam("productHostRelativeToZap") String productHostRelativeToZap,
+                           @RequestParam("productHostRelativeToThis") String productHostRelativeToThis,
                            @RequestParam("productPort") int productPort,
                            @RequestParam("productLoginUrl") String productLoginUrl,
                            @RequestParam("productLogoutUrl") String productLogoutUrl,
@@ -41,8 +43,8 @@ public class UserAPI {
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("username", "admin");
         credentials.put("password", "admin");
-        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, productHost, productPort, productLoginUrl,productLogoutUrl,
-                credentials, urlListPath, reportFilePath);
+        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis,
+                productPort, productLoginUrl, productLogoutUrl, credentials, urlListPath, reportFilePath);
 
         Observer zapObserver = new Observer() {
             String message;
@@ -62,13 +64,19 @@ public class UserAPI {
 
     @RequestMapping(value = "uploadProductZipFile", method = RequestMethod.GET)
     @ResponseBody
-    public void uploadProductZipFile(@RequestParam("zipFile") String zipFile,
+    public void uploadProductZipFile(@RequestParam("zipFileName") String zipFileName,
                                      @RequestParam("productPath") String productPath,
                                      @RequestParam("replaceExisting") boolean replaceExisting) throws IOException {
 
-//        String wso2ServerAbsolutePath = MainController.extractZipFileAndReturnServerFile(zipFile, productPath, replaceExisting);
-//        Runtime.getRuntime().exec(new String[]{"chmod", "777", wso2ServerAbsolutePath});
-//        MainController.runShellScript(new String[]{wso2ServerAbsolutePath});
+        Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(zipFileName, productPath, replaceExisting);
+        Observer wso2ServerObserver = new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                System.out.println("startsss");
+            }
+        };
+        wso2ServerHandler.addObserver(wso2ServerObserver);
+        new Thread(wso2ServerHandler).start();
     }
 
     @RequestMapping(value = "test", method = RequestMethod.GET)
