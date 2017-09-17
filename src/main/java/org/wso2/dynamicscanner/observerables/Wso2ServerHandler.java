@@ -17,6 +17,8 @@ package org.wso2.dynamicscanner.observerables;/*
 */
 
 import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.dynamicscanner.handlers.FileHandler;
 
 import java.io.BufferedReader;
@@ -31,6 +33,8 @@ public class Wso2ServerHandler extends Observable implements Runnable {
     private String fileName;
     private String productPath;
     private boolean replaceExisting;
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
 
     public Wso2ServerHandler(String fileName, String productPath, boolean replaceExisting) {
         this.fileName = fileName;
@@ -44,6 +48,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
             extractZipFileAndStartServer();
         } catch (IOException e) {
             e.printStackTrace();
+            LOGGER.error(e.toString());
         }
     }
 
@@ -67,6 +72,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
         for (File file : files) {
             if (file.getName().equals(fileToFind)) {
                 wso2serverFileAbsolutePath = file.getAbsolutePath();
+                LOGGER.info("wso2server file absolute path" + wso2serverFileAbsolutePath);
                 break;
             }
             if (file.isDirectory()) {
@@ -82,17 +88,16 @@ public class Wso2ServerHandler extends Observable implements Runnable {
         BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
         // read the output from the command
-        System.out.println("Here is the standard output of the command:\n");
-        String s = null;
-
+        LOGGER.info("Here is the standard output of the command");
+        String s;
 
         while ((s = stdInput.readLine()) != null) {
-            System.out.println(s);
+            LOGGER.info(s);
         }
         // read any errors from the attempted command
-        System.out.println("Here is the standard error of the command (if any):\n");
+        LOGGER.info("Here is the standard error of the command (if any)");
         while ((s = stdError.readLine()) != null) {
-            System.out.println(s);
+            LOGGER.error(s);
         }
     }
 

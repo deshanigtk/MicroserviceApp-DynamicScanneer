@@ -20,31 +20,31 @@ import java.util.Observer;
 @RequestMapping("dynamicScanner")
 public class UserAPI {
 
-
-    @RequestMapping(value = "login-to-product", method = RequestMethod.GET)
+    @RequestMapping(value = "runZap", method = RequestMethod.GET)
     @ResponseBody
-    public void login(@RequestParam("username") String username,
-                      @RequestParam("password") String password,
-                      @RequestParam("port") int port) throws Exception {
+    public void runZapScan(@RequestParam String zapHost,
+                           @RequestParam int zapPort,
+                           @RequestParam String sessionName,
+                           @RequestParam String productHostRelativeToZap,
+                           @RequestParam String productHostRelativeToThis,
+                           @RequestParam int productPort,
+                           @RequestParam String productLoginUrl,
+                           @RequestParam String productLogoutUrl,
+                           @RequestParam String keyUsername,
+                           @RequestParam String valueUserName,
+                           @RequestParam String keyPassword,
+                           @RequestParam String valuePassword,
+                           @RequestParam String urlListPath,
+                           @RequestParam String reportFilePath,
+                           @RequestParam boolean isAuthenticatedScan) throws Exception {
 
-    }
 
-    @RequestMapping(value = "zap", method = RequestMethod.GET)
-    @ResponseBody
-    public void runZapScan(@RequestParam("zapHost") String zapHost,
-                           @RequestParam("zapPort") int zapPort,
-                           @RequestParam("productHostRelativeToZap") String productHostRelativeToZap,
-                           @RequestParam("productHostRelativeToThis") String productHostRelativeToThis,
-                           @RequestParam("productPort") int productPort,
-                           @RequestParam("productLoginUrl") String productLoginUrl,
-                           @RequestParam("productLogoutUrl") String productLogoutUrl,
-                           @RequestParam("urlListPath") String urlListPath,
-                           @RequestParam("reportFilePath") String reportFilePath) throws Exception {
         Map<String, Object> credentials = new HashMap<>();
-        credentials.put("username", "admin");
-        credentials.put("password", "admin");
-        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis,
-                productPort, productLoginUrl, productLogoutUrl, credentials, urlListPath, reportFilePath);
+        credentials.put(keyUsername, valueUserName);
+        credentials.put(keyPassword, valuePassword);
+        
+        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, sessionName, productHostRelativeToZap, productHostRelativeToThis,
+                productPort, productLoginUrl, productLogoutUrl, credentials, urlListPath, reportFilePath, isAuthenticatedScan);
 
         Observer zapObserver = new Observer() {
             String message;
@@ -62,11 +62,11 @@ public class UserAPI {
         new Thread(zapScanner).start();
     }
 
-    @RequestMapping(value = "uploadProductZipFile", method = RequestMethod.GET)
+    @RequestMapping(value = "extractZipFileAndStartServer", method = RequestMethod.GET)
     @ResponseBody
-    public void uploadProductZipFile(@RequestParam("zipFileName") String zipFileName,
-                                     @RequestParam("productPath") String productPath,
-                                     @RequestParam("replaceExisting") boolean replaceExisting) throws IOException {
+    public void extractZipFileAndStartServer(@RequestParam String zipFileName,
+                                             @RequestParam String productPath,
+                                             @RequestParam boolean replaceExisting) throws IOException {
 
         Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(zipFileName, productPath, replaceExisting);
         Observer wso2ServerObserver = new Observer() {
@@ -78,12 +78,5 @@ public class UserAPI {
         wso2ServerHandler.addObserver(wso2ServerObserver);
         new Thread(wso2ServerHandler).start();
     }
-
-    @RequestMapping(value = "test", method = RequestMethod.GET)
-    @ResponseBody
-    public void login() throws Exception {
-
-    }
-
 
 }

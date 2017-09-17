@@ -6,30 +6,29 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
 public class ZapClient {
 
-    private static final String SAVE_SESSION_PATH = "/JSON/core/action/newSession/";
-    private static final String REMOVE_SESSION_PATH = "/JSON/httpSessions/action/removeSession/";
-    private static final String CREATE_EMPTY_SESSION = "/JSON/httpSessions/action/createEmptySession/";
-    private static final String SET_SESSION_TOKEN_VALUE = "/JSON/httpSessions/action/setSessionTokenValue/";
-    private static final String EXCLUDE_FROM_SCAN = "/JSON/spider/action/excludeFromScan/";
-    private static final String NEW_CONTEXT = "/JSON/context/action/newContext/";
-    private static final String INCLUDE_IN_CONTEXT = "/JSON/context/action/includeInContext/";
-    private static final String SPIDER_SCAN = "/JSON/spider/action/scan/";
-    private static final String SPIDER_STATUS = "/JSON/spider/view/status/";
-    private static final String AJAX_SPIDER_SCAN = "/JSON/ajaxSpider/action/scan/";
-    private static final String AJAX_SPIDER_STATUS = "/JSON/ajaxSpider/view/status/";
-    private static final String ACTIVE_SCAN = "/JSON/ascan/action/scan/";
-    private static final String ACTIVE_SCAN_STATUS = "/JSON/ascan/view/status/";
-    private static final String HTML_REPORT = "/OTHER/core/other/htmlreport/";
+    private final String SAVE_SESSION_PATH = "/JSON/core/action/newSession/";
+    private final String REMOVE_SESSION_PATH = "/JSON/httpSessions/action/removeSession/";
+    private final String CREATE_EMPTY_SESSION = "/JSON/httpSessions/action/createEmptySession/";
+    private final String SET_SESSION_TOKEN_VALUE = "/JSON/httpSessions/action/setSessionTokenValue/";
+    private final String EXCLUDE_FROM_SCAN = "/JSON/spider/action/excludeFromScan/";
+    private final String NEW_CONTEXT = "/JSON/context/action/newContext/";
+    private final String INCLUDE_IN_CONTEXT = "/JSON/context/action/includeInContext/";
+    private final String SPIDER_SCAN = "/JSON/spider/action/scan/";
+    private final String SPIDER_STATUS = "/JSON/spider/view/status/";
+    private final String AJAX_SPIDER_SCAN = "/JSON/ajaxSpider/action/scan/";
+    private final String AJAX_SPIDER_STATUS = "/JSON/ajaxSpider/view/status/";
+    private final String ACTIVE_SCAN = "/JSON/ascan/action/scan/";
+    private final String ACTIVE_SCAN_STATUS = "/JSON/ascan/view/status/";
+    private final String HTML_REPORT = "/OTHER/core/other/htmlreport/";
 
     private final HttpClient httpClient;
     private final String host;
@@ -39,14 +38,14 @@ public class ZapClient {
     private final static String GET = "GET";
     private final static String POST = "POST";
 
-    private static final Logger LOGGER = Logger.getLogger(ZapClient.class.getName());
+    private final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     public ZapClient(String host, int port, String scheme) {
         httpClient = HttpClientBuilder.create().build();
         this.host = host;
         this.port = port;
         this.scheme = scheme;
-        LOGGER.log(Level.FINE, "ZapClient is initialized", new String[]{host, String.valueOf(port), scheme});
+        LOGGER.info("ZapClient is initialized");
     }
 
     public HttpResponse saveSession(String name, boolean overwrite, Boolean post)
@@ -58,7 +57,7 @@ public class ZapClient {
                 .addParameter("overwrite", overwrite ? "true" : "false")
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to run SaveSession", uri);
+        LOGGER.info("URI to run SaveSession: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -71,7 +70,7 @@ public class ZapClient {
                 .addParameter("session", session)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to run RemoveSession", uri);
+        LOGGER.info("URI to run RemoveSession: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -84,7 +83,7 @@ public class ZapClient {
                 .addParameter("session", session)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to run CreateEmptySession", uri);
+        LOGGER.info("URI to run CreateEmptySession: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -99,7 +98,7 @@ public class ZapClient {
                 .addParameter("tokenValue", tokenValue)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to run SetSessionTokenValue", uri);
+        LOGGER.info("URI to run SetSessionTokenValue: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -111,7 +110,7 @@ public class ZapClient {
                 .addParameter("regex", regex)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to ExcludeFromSpider", uri);
+        LOGGER.info("URI to ExcludeFromSpider: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -123,7 +122,7 @@ public class ZapClient {
                 .addParameter("contextName", contextName)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to CreateNewContext", uri);
+        LOGGER.info("URI to CreateNewContext: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -136,7 +135,7 @@ public class ZapClient {
                 .addParameter("regex", regex)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to run IncludeInContext", uri);
+        LOGGER.info("URI to run IncludeInContext: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -152,7 +151,7 @@ public class ZapClient {
                 .addParameter("subtreeOnly", subtreeOnly)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to run Spider", uri);
+        LOGGER.info("URI to run Spider" + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -163,7 +162,7 @@ public class ZapClient {
                 .addParameter("scanId", scanId)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to run SpiderStatus", uri);
+        LOGGER.info("URI to run SpiderStatus: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -178,7 +177,7 @@ public class ZapClient {
                 .addParameter("subtreeOnly", subtreeOnly)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to run AjaxSpider", uri);
+        LOGGER.info("URI to run AjaxSpider: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -187,8 +186,8 @@ public class ZapClient {
         URI uri = (new URIBuilder()).setHost(this.host).setPort(this.port).setScheme(this.scheme).setPath(AJAX_SPIDER_STATUS)
                 .addParameter("formMethod", post ? POST : GET)
                 .build();
-        System.out.println(uri.toString());
 
+        LOGGER.info("URI to check Ajax Spider Status: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -207,7 +206,7 @@ public class ZapClient {
                 .addParameter("contextId", contextId)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to run ActiveScan", uri);
+        LOGGER.info("URI to run ActiveScan: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -218,7 +217,7 @@ public class ZapClient {
                 .addParameter("scanId", scanId)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to check ActiveScanStatus", uri);
+        LOGGER.info("URI to check ActiveScanStatus: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -228,7 +227,7 @@ public class ZapClient {
                 .addParameter("formMethod", post ? POST : GET)
                 .build();
 
-        LOGGER.log(Level.FINE, "URI to generate HTML report", uri);
+        LOGGER.info("URI to generate HTML report: " + uri);
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 }

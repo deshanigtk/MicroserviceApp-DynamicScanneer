@@ -18,12 +18,10 @@ package org.wso2.dynamicscanner.observerables;/*
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.dynamicscanner.clients.ZapClient;
-import org.wso2.dynamicscanner.handlers.FileHandler;
 import org.wso2.dynamicscanner.handlers.HttpRequestHandler;
 import org.wso2.dynamicscanner.handlers.HttpsRequestHandler;
 
@@ -40,12 +38,9 @@ public class ZapScanner extends Observable implements Runnable {
 
     private final String HTTP_SCHEME = "http";
     private final String HTTPS_SCHEME = "https";
-
-    private final String GET = "GET";
     private final String POST = "POST";
 
-    private final String sessionName = "Session-02";
-
+    private String sessionName;
     private String productHostRelativeToZap;
     private String productHostRelativeToThis;
     private int productPort;
@@ -54,9 +49,11 @@ public class ZapScanner extends Observable implements Runnable {
     private String productLogoutUrl;
 
     private ZapClient zapClient;
+    private URI productUri;
+    private boolean isAuthenticatedScan;
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-    private URI productUri;
+
 
     @Override
     public void run() {
@@ -64,12 +61,14 @@ public class ZapScanner extends Observable implements Runnable {
             startScan();
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.info(e.toString(), e);
+            LOGGER.error(e.toString());
         }
     }
 
-    public ZapScanner(String zapHost, int zapPort, String productHostRelativeToZap, String productHostRelativeToThis, int productPort, String productLoginUrl, String productLogoutUrl,
-                      Map<String, Object> loginCredentials, String urlListPath, String reportFilePath) throws URISyntaxException {
+    public ZapScanner(String zapHost, int zapPort, String sessionName, String productHostRelativeToZap, String productHostRelativeToThis, int productPort, String productLoginUrl, String productLogoutUrl,
+                      Map<String, Object> loginCredentials, String urlListPath, String reportFilePath, boolean isAuthenticatedScan) throws URISyntaxException {
+
+        this.sessionName = sessionName;
         this.productHostRelativeToZap = productHostRelativeToZap;
         this.productHostRelativeToThis = productHostRelativeToThis;
         this.productPort = productPort;
@@ -80,8 +79,8 @@ public class ZapScanner extends Observable implements Runnable {
         this.urlListPath = urlListPath;
         this.reportFilePath = reportFilePath;
         this.zapClient = new ZapClient(zapHost, zapPort, HTTP_SCHEME);
+        this.isAuthenticatedScan = isAuthenticatedScan;
         productUri = (new URIBuilder()).setHost(productHostRelativeToZap).setPort(productPort).setScheme(HTTPS_SCHEME).build();
-
     }
 
     private void startScan() throws Exception {
@@ -91,49 +90,50 @@ public class ZapScanner extends Observable implements Runnable {
         HttpResponse createEmptySessionResponse = zapClient.createEmptySession(productUri.toString(), sessionName, false);
         LOGGER.info("Creating empty session " + HttpRequestHandler.printResponse(createEmptySessionResponse));
 
-        //login to wso2 server
-        Map<String, String> props = new HashMap<>();
-        props.put("Content-Type", "text/plain");
+        if (isAuthenticatedScan) {
+            //login to wso2 server
+            Map<String, String> props = new HashMap<>();
+            props.put("Content-Type", "text/plain");
 
-        URI loginUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(productLoginUrl).build();
-        HttpsURLConnection httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
-        List<String> setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
+            URI loginUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(productLoginUrl).build();
+            HttpsURLConnection httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
+            List<String> setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
 
-        assert setCookieResponseList != null;
-        String setCookieResponse = setCookieResponseList.get(0);
-        String jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
+            assert setCookieResponseList != null;
+            String setCookieResponse = setCookieResponseList.get(0);
+            String jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
 
-        HttpResponse setSessionTokenResponse = zapClient.setSessionTokenValue(productUri.toString(), sessionName, "JSESSIONID", jsessionId, false);
-        LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
+            HttpResponse setSessionTokenResponse = zapClient.setSessionTokenValue(productUri.toString(), sessionName, "JSESSIONID", jsessionId, false);
+            LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
 
-        //Exclude logout url from spider
-        URI logoutUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(productLogoutUrl)
-                .build();
-        LOGGER.info("Logout URI: " + logoutUri.toString());
-        HttpsURLConnection httpsURLConnectionLogout = HttpsRequestHandler.sendRequest(logoutUri.toString(), props, null, POST);
-        LOGGER.info("Response of sending logout request to server" + HttpsRequestHandler.printResponse(httpsURLConnectionLogout));
+            //Exclude logout url from spider
+            URI logoutUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(productLogoutUrl)
+                    .build();
+            LOGGER.info("Logout URI: " + logoutUri.toString());
+            HttpsURLConnection httpsURLConnectionLogout = HttpsRequestHandler.sendRequest(logoutUri.toString(), props, null, POST);
+            LOGGER.info("Response of sending logout request to server: " + HttpsRequestHandler.printResponse(httpsURLConnectionLogout));
 
-        HttpResponse excludeFromSpiderResponse = zapClient.excludeFromSpider(logoutUri.toString(), false);
-        LOGGER.info("Exclude logout from spider response: " + HttpRequestHandler.printResponse(excludeFromSpiderResponse));
+            HttpResponse excludeFromSpiderResponse = zapClient.excludeFromSpider(logoutUri.toString(), false);
+            LOGGER.info("Exclude logout from spider response: " + HttpRequestHandler.printResponse(excludeFromSpiderResponse));
 
-        //Remove previously created session
-        HttpResponse removeSessionResponse = zapClient.removeSession(productUri.toString(), sessionName, false);
-        LOGGER.info("Remove Session Response" + HttpRequestHandler.printResponse(removeSessionResponse));
+            //Remove previously created session
+            HttpResponse removeSessionResponse = zapClient.removeSession(productUri.toString(), sessionName, false);
+            LOGGER.info("Remove Session Response: " + HttpRequestHandler.printResponse(removeSessionResponse));
 
-        //Create an empty session
-        createEmptySessionResponse = zapClient.createEmptySession(productUri.toString(), sessionName, false);
-        LOGGER.info("Creating empty session" + HttpRequestHandler.printResponse(createEmptySessionResponse));
+            //Create an empty session
+            createEmptySessionResponse = zapClient.createEmptySession(productUri.toString(), sessionName, false);
+            LOGGER.info("Creating empty session: " + HttpRequestHandler.printResponse(createEmptySessionResponse));
 
-        httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
-        setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
+            httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
+            setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
 
-        assert setCookieResponseList != null;
-        setCookieResponse = setCookieResponseList.get(0);
-        jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
+            assert setCookieResponseList != null;
+            setCookieResponse = setCookieResponseList.get(0);
+            jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
 
-        setSessionTokenResponse = zapClient.setSessionTokenValue(productUri.toString(), sessionName, "JSESSIONID", jsessionId, false);
-        LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
-
+            setSessionTokenResponse = zapClient.setSessionTokenValue(productUri.toString(), sessionName, "JSESSIONID", jsessionId, false);
+            LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
+        }
         runSpider();
         runAjaxSpider();
         runActiveScan();
@@ -177,7 +177,7 @@ public class ZapScanner extends Observable implements Runnable {
 
             while (Integer.parseInt(extractJsonValue(spiderStatusResponse, "status")) < 100) {
                 spiderStatusResponse = zapClient.spiderStatus(scanId, false);
-                LOGGER.info("Sending request to check spider status" + spiderStatusResponse);
+                LOGGER.info("Sending request to check spider status: " + spiderStatusResponse);
                 Thread.sleep(1000);
             }
         }
@@ -187,19 +187,18 @@ public class ZapScanner extends Observable implements Runnable {
         URI productUri = (new URIBuilder()).setHost(productHostRelativeToZap).setPort(productPort).setScheme(HTTPS_SCHEME).build();
         try {
             HttpResponse ajaxSpiderResponse = zapClient.ajaxSpider(productUri.toString(), "", "", "", false);
-            LOGGER.info("Starting Ajax spider " + ajaxSpiderResponse);
+            LOGGER.info("Starting Ajax spider: " + ajaxSpiderResponse);
         } catch (URISyntaxException e) {
             e.printStackTrace();
-            LOGGER.info(e.toString(), e);
+            LOGGER.error(e.toString(), e);
         }
 
         HttpResponse ajaxSpiderStatusResponse = zapClient.ajaxSpiderStatus(false);
-        System.out.println(ajaxSpiderStatusResponse);
-        LOGGER.info("Ajax spider status" + ajaxSpiderStatusResponse);
+        LOGGER.info("Ajax spider status: " + ajaxSpiderStatusResponse);
 
         while (!extractJsonValue(ajaxSpiderStatusResponse, "status").equals("stopped")) {
             ajaxSpiderStatusResponse = zapClient.ajaxSpiderStatus(false);
-            LOGGER.info("Ajax spider status" + ajaxSpiderStatusResponse);
+            LOGGER.info("Ajax spider status: " + ajaxSpiderStatusResponse);
             Thread.sleep(3000);
         }
     }

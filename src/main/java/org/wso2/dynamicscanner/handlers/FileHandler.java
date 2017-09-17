@@ -22,42 +22,6 @@ public class FileHandler {
 
     private static final int BUFFER = 2048;
 
-    public static void extractFileAtLocation(String zipFilePath) throws IOException {
-
-        File file = new File(zipFilePath);
-
-        ZipFile zipFile = new ZipFile(file);
-        String extractParent = file.getParent();
-
-        Enumeration zipFileEntries = zipFile.entries();
-
-        while (zipFileEntries.hasMoreElements()) {
-
-            ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
-            String name = entry.getName();
-            File destFile = new File(extractParent, name);
-
-            if (destFile.getParentFile().mkdirs()) {
-                if (!entry.isDirectory()) {
-                    try (BufferedInputStream inputStream =
-                                 new BufferedInputStream(zipFile.getInputStream(entry));
-                         BufferedOutputStream outputStream =
-                                 new BufferedOutputStream(new FileOutputStream(destFile), BUFFER)) {
-
-                        byte data[] = new byte[BUFFER];
-                        int currentByte;
-
-                        while ((currentByte = inputStream.read(data, 0, BUFFER)) != -1) {
-                            outputStream.write(data, 0, currentByte);
-                        }
-                        outputStream.flush();
-                    }
-                }
-            }
-        }
-    }
-
-
     public static String extractFolder(String zipFile) throws IOException {
         int BUFFER = 2048;
         File file = new File(zipFile);
@@ -108,18 +72,5 @@ public class FileHandler {
         }
         //FileUtils.deleteDirectory(new File(zipFile));
         return fileName.substring(0, fileName.length() - 4);
-    }
-
-    public static void test(String url, File file) throws IOException {
-
-        HttpClient client = new DefaultHttpClient();
-        HttpPost post = new HttpPost(url);
-
-        MultipartEntity entity = new MultipartEntity();
-        entity.addPart("file", new FileBody(file));
-        post.setEntity(entity);
-
-        HttpResponse response = client.execute(post);
-        System.out.println(response);
     }
 }
