@@ -22,8 +22,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.wso2.dynamicscanner.clients.ZapClient;
 import org.wso2.dynamicscanner.handlers.HttpRequestHandler;
 import org.wso2.dynamicscanner.handlers.HttpsRequestHandler;
@@ -57,7 +55,7 @@ public class ZapScanner extends Observable implements Runnable {
     private String valuePassword = "admin";
     private String loginUrl="/carbon/admin/login_action.jsp";
     private String logoutUrl="/carbon/admin/logout_action.jsp";
-    private String reportFilePath="/home/NewReport.html";
+    public String reportFilePath="/home/NewReport.html";
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -100,12 +98,6 @@ public class ZapScanner extends Observable implements Runnable {
             //login to wso2 server
             Map<String, String> props = new HashMap<>();
             props.put("Content-Type", "text/plain");
-            System.out.println(keyPassword);
-            System.out.println(keyUsername);
-            System.out.println(valuePassword);
-            System.out.println(valueUserName);
-            System.out.println(loginUrl);
-            System.out.println(logoutUrl);
 
             URI loginUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(loginUrl).build();
             LOGGER.info("URI to login to wso2server: " + loginUri.toString());

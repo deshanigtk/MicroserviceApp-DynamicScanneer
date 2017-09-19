@@ -63,7 +63,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
         findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
 
         if (wso2serverFileAbsolutePath != null) {
-            Runtime.getRuntime().exec(new String[]{"chmod", "+x", wso2serverFileAbsolutePath});
+            Runtime.getRuntime().exec(new String[]{"chmod", "777", wso2serverFileAbsolutePath});
             runShellScript(new String[]{wso2serverFileAbsolutePath});
         }
     }

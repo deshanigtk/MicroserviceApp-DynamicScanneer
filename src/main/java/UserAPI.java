@@ -77,5 +77,4 @@ public class UserAPI {
         wso2ServerHandler.addObserver(wso2ServerObserver);
         new Thread(wso2ServerHandler).start();
     }
-
 }
