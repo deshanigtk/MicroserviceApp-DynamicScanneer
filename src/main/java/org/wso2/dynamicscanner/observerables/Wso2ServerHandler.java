@@ -1,4 +1,5 @@
-package org.wso2.dynamicscanner.observerables;/*
+package org.wso2.dynamicscanner.observerables;
+/*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,

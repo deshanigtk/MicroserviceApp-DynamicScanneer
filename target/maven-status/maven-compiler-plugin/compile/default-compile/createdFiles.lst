@@ -3,10 +3,8 @@ App.class
 org/wso2/dynamicscanner/observerables/Wso2ServerHandler.class
 org/wso2/dynamicscanner/clients/ZapClient.class
 UserAPI$2.class
-MainController.class
 UserAPI$1.class
 org/wso2/dynamicscanner/handlers/HttpsRequestHandler.class
 org/wso2/dynamicscanner/observerables/ZapScanner.class
 org/wso2/dynamicscanner/handlers/FileHandler.class
 UserAPI.class
-Constants.class

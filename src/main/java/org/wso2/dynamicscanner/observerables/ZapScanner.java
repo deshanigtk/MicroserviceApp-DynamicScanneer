@@ -1,4 +1,5 @@
-package org.wso2.dynamicscanner.observerables;/*
+package org.wso2.dynamicscanner.observerables;
+/*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -21,6 +22,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.wso2.dynamicscanner.clients.ZapClient;
 import org.wso2.dynamicscanner.handlers.HttpRequestHandler;
 import org.wso2.dynamicscanner.handlers.HttpsRequestHandler;
@@ -34,8 +37,6 @@ import java.util.*;
 public class ZapScanner extends Observable implements Runnable {
 
     private String urlListPath;
-    private String reportFilePath;
-
     private final String HTTP_SCHEME = "http";
     private final String HTTPS_SCHEME = "https";
     private final String POST = "POST";
@@ -44,16 +45,21 @@ public class ZapScanner extends Observable implements Runnable {
     private String productHostRelativeToZap;
     private String productHostRelativeToThis;
     private int productPort;
-    private String productLoginUrl;
-    private Map<String, Object> loginCredentials;
-    private String productLogoutUrl;
 
+    private Map<String, Object> loginCredentials;
     private ZapClient zapClient;
     private URI productUri;
     private boolean isAuthenticatedScan;
 
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private String keyUsername = "username";
+    private String valueUserName = "admin";
+    private String keyPassword = "password";
+    private String valuePassword = "admin";
+    private String loginUrl="/carbon/admin/login_action.jsp";
+    private String logoutUrl="/carbon/admin/logout_action.jsp";
+    private String reportFilePath="/home/NewReport.html";
 
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public void run() {
@@ -65,22 +71,22 @@ public class ZapScanner extends Observable implements Runnable {
         }
     }
 
-    public ZapScanner(String zapHost, int zapPort, String sessionName, String productHostRelativeToZap, String productHostRelativeToThis, int productPort, String productLoginUrl, String productLogoutUrl,
-                      Map<String, Object> loginCredentials, String urlListPath, String reportFilePath, boolean isAuthenticatedScan) throws URISyntaxException {
+    public ZapScanner(String zapHost, int zapPort, String sessionName, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
+                      String urlListPath, boolean isAuthenticatedScan) throws URISyntaxException {
 
         this.sessionName = sessionName;
         this.productHostRelativeToZap = productHostRelativeToZap;
         this.productHostRelativeToThis = productHostRelativeToThis;
         this.productPort = productPort;
-        this.productLoginUrl = productLoginUrl;
-        this.productLogoutUrl = productLogoutUrl;
-        this.loginCredentials = loginCredentials;
 
         this.urlListPath = urlListPath;
-        this.reportFilePath = reportFilePath;
         this.zapClient = new ZapClient(zapHost, zapPort, HTTP_SCHEME);
         this.isAuthenticatedScan = isAuthenticatedScan;
+
         productUri = (new URIBuilder()).setHost(productHostRelativeToZap).setPort(productPort).setScheme(HTTPS_SCHEME).build();
+        loginCredentials = new HashMap<>();
+        loginCredentials.put(keyUsername, valueUserName);
+        loginCredentials.put(keyPassword, valuePassword);
     }
 
     private void startScan() throws Exception {
@@ -94,8 +100,15 @@ public class ZapScanner extends Observable implements Runnable {
             //login to wso2 server
             Map<String, String> props = new HashMap<>();
             props.put("Content-Type", "text/plain");
+            System.out.println(keyPassword);
+            System.out.println(keyUsername);
+            System.out.println(valuePassword);
+            System.out.println(valueUserName);
+            System.out.println(loginUrl);
+            System.out.println(logoutUrl);
 
-            URI loginUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(productLoginUrl).build();
+            URI loginUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(loginUrl).build();
+            LOGGER.info("URI to login to wso2server: " + loginUri.toString());
             HttpsURLConnection httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
             List<String> setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
 
@@ -107,7 +120,7 @@ public class ZapScanner extends Observable implements Runnable {
             LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
 
             //Exclude logout url from spider
-            URI logoutUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(productLogoutUrl)
+            URI logoutUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(logoutUrl)
                     .build();
             LOGGER.info("Logout URI: " + logoutUri.toString());
             HttpsURLConnection httpsURLConnectionLogout = HttpsRequestHandler.sendRequest(logoutUri.toString(), props, null, POST);

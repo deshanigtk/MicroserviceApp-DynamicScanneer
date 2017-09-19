@@ -1,4 +1,8 @@
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -9,16 +13,20 @@ import org.wso2.dynamicscanner.observerables.ZapScanner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
 
 @Controller
 @EnableAutoConfiguration
+@PropertySource("classpath:global.properties")
 @RequestMapping("dynamicScanner")
 public class UserAPI {
+
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
+    @Value("${report_file_path}")
+    private String reportFilePath;
 
     @RequestMapping(value = "runZap", method = RequestMethod.GET)
     @ResponseBody
@@ -28,23 +36,12 @@ public class UserAPI {
                            @RequestParam String productHostRelativeToZap,
                            @RequestParam String productHostRelativeToThis,
                            @RequestParam int productPort,
-                           @RequestParam String productLoginUrl,
-                           @RequestParam String productLogoutUrl,
-                           @RequestParam String keyUsername,
-                           @RequestParam String valueUserName,
-                           @RequestParam String keyPassword,
-                           @RequestParam String valuePassword,
                            @RequestParam String urlListPath,
-                           @RequestParam String reportFilePath,
                            @RequestParam boolean isAuthenticatedScan) throws Exception {
 
 
-        Map<String, Object> credentials = new HashMap<>();
-        credentials.put(keyUsername, valueUserName);
-        credentials.put(keyPassword, valuePassword);
-        
         ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, sessionName, productHostRelativeToZap, productHostRelativeToThis,
-                productPort, productLoginUrl, productLogoutUrl, credentials, urlListPath, reportFilePath, isAuthenticatedScan);
+                productPort, urlListPath, isAuthenticatedScan);
 
         Observer zapObserver = new Observer() {
             String message;
@@ -56,6 +53,8 @@ public class UserAPI {
                 } else {
                     message = "scan failed";
                 }
+                System.out.println(message);
+                LOGGER.info("Zap scan status: " + message);
             }
         };
         zapScanner.addObserver(zapObserver);

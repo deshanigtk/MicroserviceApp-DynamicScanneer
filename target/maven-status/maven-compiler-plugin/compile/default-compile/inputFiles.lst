@@ -1,10 +1,7 @@
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/dynamicscanner/observerables/Wso2ServerHandler.java
-/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/MainController.java
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/dynamicscanner/handlers/HttpRequestHandler.java
-/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/Constants.java
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/dynamicscanner/clients/ZapClient.java
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/UserAPI.java
-/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/MainController_OLD.java
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/dynamicscanner/observerables/ZapScanner.java
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/dynamicscanner/handlers/FileHandler.java
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/dynamicscanner/handlers/HttpsRequestHandler.java
