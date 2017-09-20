@@ -26,6 +26,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.Observable;
 
 public class Wso2ServerHandler extends Observable implements Runnable {
@@ -34,7 +37,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
     private String fileName;
     private String productPath;
     private boolean replaceExisting;
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private final static Logger LOGGER = LoggerFactory.getLogger(Wso2ServerHandler.class);
 
 
     public Wso2ServerHandler(String fileName, String productPath, boolean replaceExisting) {
@@ -47,6 +50,8 @@ public class Wso2ServerHandler extends Observable implements Runnable {
     public void run() {
         try {
             extractZipFileAndStartServer();
+            setChanged();
+            notifyObservers(true);
         } catch (IOException e) {
             e.printStackTrace();
             LOGGER.error(e.toString());
@@ -73,7 +78,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
         for (File file : files) {
             if (file.getName().equals(fileToFind)) {
                 wso2serverFileAbsolutePath = file.getAbsolutePath();
-                LOGGER.info("wso2server file absolute path" + wso2serverFileAbsolutePath);
+                LOGGER.info("wso2server file absolute path: " + wso2serverFileAbsolutePath);
                 break;
             }
             if (file.isDirectory()) {
@@ -85,21 +90,32 @@ public class Wso2ServerHandler extends Observable implements Runnable {
     private void runShellScript(String[] command) throws IOException {
         Process proc = Runtime.getRuntime().exec(command);
 
-        BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-        BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-
-        // read the output from the command
-        LOGGER.info("Here is the standard output of the command");
-        String s;
-
-        while ((s = stdInput.readLine()) != null) {
-            LOGGER.info(s);
-        }
-        // read any errors from the attempted command
-        LOGGER.info("Here is the standard error of the command (if any)");
-        while ((s = stdError.readLine()) != null) {
-            LOGGER.error(s);
-        }
+//        BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+//        BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+//
+//        // read the output from the command
+//        LOGGER.info("Here is the standard output of the command");
+//        String s;
+//
+//        while ((s = stdInput.readLine()) != null) {
+//            LOGGER.info(s);
+//        }
+//        // read any errors from the attempted command
+//        LOGGER.info("Here is the standard error of the command (if any)");
+//        while ((s = stdError.readLine()) != null) {
+//            LOGGER.error(s);
+//        }
+//        stdInput.close();
+//        stdError.close();
     }
 
+    public static boolean hostAvailabilityCheck(String host, int port) {
+        try (Socket s = new Socket(host, port)) {
+            LOGGER.info("Success");
+            return true;
+        } catch (IOException e) {
+            LOGGER.error(e.toString());
+            return false;
+        }
+    }
 }

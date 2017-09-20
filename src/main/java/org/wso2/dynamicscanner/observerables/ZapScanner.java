@@ -55,7 +55,7 @@ public class ZapScanner extends Observable implements Runnable {
     private String valuePassword = "admin";
     private String loginUrl="/carbon/admin/login_action.jsp";
     private String logoutUrl="/carbon/admin/logout_action.jsp";
-    public String reportFilePath="/home/NewReport.html";
+    public String reportFilePath="/home/ZapScanReport.html";
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -63,6 +63,8 @@ public class ZapScanner extends Observable implements Runnable {
     public void run() {
         try {
             startScan();
+            setChanged();
+            notifyObservers(true);
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error(e.toString());
@@ -145,7 +147,6 @@ public class ZapScanner extends Observable implements Runnable {
 
         HttpResponse generatedHtmlReport = zapClient.generateHtmlReport(false);
         HttpRequestHandler.saveResponseToFile(generatedHtmlReport, new File(reportFilePath));
-
     }
 
     private void runSpider() throws IOException, InterruptedException, URISyntaxException {

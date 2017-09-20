@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 @Controller
@@ -53,12 +55,19 @@ public class UserAPI {
                 } else {
                     message = "scan failed";
                 }
-                System.out.println(message);
                 LOGGER.info("Zap scan status: " + message);
             }
         };
         zapScanner.addObserver(zapObserver);
-        new Thread(zapScanner).start();
+        if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
+            if(Wso2ServerHandler.hostAvailabilityCheck(zapHost,zapPort)) {
+                new Thread(zapScanner).start();
+            }else{
+                LOGGER.error("ZAP is not in running status");
+            }
+        }else{
+            LOGGER.error("Wso2 server is not in running status");
+        }
     }
 
     @RequestMapping(value = "extractZipFileAndStartServer", method = RequestMethod.GET)
@@ -69,9 +78,26 @@ public class UserAPI {
 
         Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(zipFileName, productPath, replaceExisting);
         Observer wso2ServerObserver = new Observer() {
+
+            String message;
+
             @Override
             public void update(Observable o, Object arg) {
-                System.out.println("startsss");
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        // Your database code here
+                        if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
+                            message = "Successfully started";
+                        } else {
+                            message = "Failed to start the server";
+                        }
+                        LOGGER.info("WSO2 server status: " + message);
+                    }
+                }, 70000);
+
+
             }
         };
         wso2ServerHandler.addObserver(wso2ServerObserver);
