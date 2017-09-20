@@ -31,7 +31,11 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-
+/**
+ * Main ZAP scanning methods
+ *
+ * @author Deshani Geethika
+ */
 public class ZapScanner extends Observable implements Runnable {
 
     private String urlListPath;

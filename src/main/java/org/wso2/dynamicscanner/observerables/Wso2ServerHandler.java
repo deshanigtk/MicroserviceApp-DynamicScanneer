@@ -30,6 +30,11 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Observable;
+/**
+ * Methods to extract a zip file of wso2 product, run wso2server.sh, check a host is available
+ *
+ * @author Deshani Geethika
+ */
 
 public class Wso2ServerHandler extends Observable implements Runnable {
 

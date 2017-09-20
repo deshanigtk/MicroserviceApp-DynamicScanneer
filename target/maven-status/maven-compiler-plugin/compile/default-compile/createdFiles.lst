@@ -1,4 +1,5 @@
 org/wso2/dynamicscanner/handlers/HttpRequestHandler.class
+UserAPI$2$1.class
 App.class
 org/wso2/dynamicscanner/observerables/Wso2ServerHandler.class
 org/wso2/dynamicscanner/clients/ZapClient.class
