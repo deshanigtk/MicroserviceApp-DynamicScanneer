@@ -20,16 +20,13 @@ package org.wso2.dynamicscanner.observerables;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 import org.wso2.dynamicscanner.handlers.FileHandler;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
+import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.Observable;
+
 /**
  * Methods to extract a zip file of wso2 product, run wso2server.sh, check a host is available
  *
@@ -39,14 +36,14 @@ import java.util.Observable;
 public class Wso2ServerHandler extends Observable implements Runnable {
 
     private String wso2serverFileAbsolutePath;
-    private String fileName;
+    private MultipartFile file;
     private String productPath;
     private boolean replaceExisting;
     private final static Logger LOGGER = LoggerFactory.getLogger(Wso2ServerHandler.class);
 
 
-    public Wso2ServerHandler(String fileName, String productPath, boolean replaceExisting) {
-        this.fileName = fileName;
+    public Wso2ServerHandler(MultipartFile file, String productPath, boolean replaceExisting) {
+        this.file = file;
         this.productPath = productPath;
         this.replaceExisting = replaceExisting;
     }
@@ -54,7 +51,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
     @Override
     public void run() {
         try {
-            extractZipFileAndStartServer();
+            uploadZipFileExtractAndStartServer();
             setChanged();
             notifyObservers(true);
         } catch (IOException e) {
@@ -63,18 +60,26 @@ public class Wso2ServerHandler extends Observable implements Runnable {
         }
     }
 
-    private void extractZipFileAndStartServer() throws IOException {
+    private void uploadZipFileExtractAndStartServer() throws IOException {
+        boolean isProductPathCreated;
         if (new File(productPath).exists() && replaceExisting) {
             FileUtils.deleteDirectory(new File(productPath));
         }
-        FileHandler.extractFolder(productPath + File.separator + fileName);
+        isProductPathCreated = new File(productPath).exists() || new File(productPath).mkdir();
+        if (isProductPathCreated) {
+            String fileName = uploadFile(file);
+            if (fileName != null) {
+                String folderName = FileHandler.extractFolder(productPath + File.separator + fileName);
 
-        String folderName = fileName.substring(0, fileName.length() - 4);
-        findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
+                findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
 
-        if (wso2serverFileAbsolutePath != null) {
-            Runtime.getRuntime().exec(new String[]{"chmod", "777", wso2serverFileAbsolutePath});
-            runShellScript(new String[]{wso2serverFileAbsolutePath});
+                if (wso2serverFileAbsolutePath != null) {
+                    Runtime.getRuntime().exec(new String[]{"chmod", "777", wso2serverFileAbsolutePath});
+                    runShellScript(new String[]{wso2serverFileAbsolutePath});
+                }
+            }
+        } else {
+            LOGGER.error("Product path is not available");
         }
     }
 
@@ -122,5 +127,31 @@ public class Wso2ServerHandler extends Observable implements Runnable {
             LOGGER.error(e.toString());
             return false;
         }
+    }
+
+    private String uploadFile(MultipartFile file) {
+        if (!file.isEmpty()) {
+            String fileName = file.getOriginalFilename();
+            if (fileName.endsWith(".zip")) {
+                try {
+                    byte[] bytes = file.getBytes();
+                    BufferedOutputStream stream =
+                            new BufferedOutputStream(new FileOutputStream(new File(productPath + File.separator + fileName)));
+                    stream.write(bytes);
+                    stream.close();
+                    LOGGER.info("File successfully uploaded");
+                    return fileName;
+
+                } catch (IOException e) {
+                    LOGGER.error("File is not uploaded" + e.toString());
+                }
+
+            } else {
+                LOGGER.error("Not a zip file");
+            }
+        } else {
+            LOGGER.error("No file");
+        }
+        return null;
     }
 }

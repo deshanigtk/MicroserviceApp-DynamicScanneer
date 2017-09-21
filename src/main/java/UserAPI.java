@@ -15,6 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.wso2.dynamicscanner.observerables.Wso2ServerHandler;
 import org.wso2.dynamicscanner.observerables.ZapScanner;
 
@@ -34,6 +36,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
+
 /**
  * API which exposes to outside world
  *
@@ -49,6 +52,9 @@ public class UserAPI {
 
     @Value("${report_file_path}")
     private String reportFilePath;
+
+    @Value("${product_path}")
+    private String productPath;
 
     @RequestMapping(value = "runZap", method = RequestMethod.GET)
     @ResponseBody
@@ -80,23 +86,23 @@ public class UserAPI {
         };
         zapScanner.addObserver(zapObserver);
         if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
-            if(Wso2ServerHandler.hostAvailabilityCheck(zapHost,zapPort)) {
+            if (Wso2ServerHandler.hostAvailabilityCheck(zapHost, zapPort)) {
                 new Thread(zapScanner).start();
-            }else{
+            } else {
                 LOGGER.error("ZAP is not in running status");
             }
-        }else{
+        } else {
             LOGGER.error("Wso2 server is not in running status");
         }
     }
 
-    @RequestMapping(value = "extractZipFileAndStartServer", method = RequestMethod.GET)
+    @RequestMapping(value = "uploadZipFileExtractAndStartServer", method = RequestMethod.POST)
     @ResponseBody
-    public void extractZipFileAndStartServer(@RequestParam String zipFileName,
-                                             @RequestParam String productPath,
-                                             @RequestParam boolean replaceExisting) throws IOException {
+    public void uploadZipFileExtractAndStartServer(@RequestParam("file") MultipartFile file,
+                                               @RequestParam boolean replaceExisting) throws IOException {
 
-        Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(zipFileName, productPath, replaceExisting);
+
+        Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(file, productPath, replaceExisting);
         Observer wso2ServerObserver = new Observer() {
 
             String message;
@@ -107,7 +113,6 @@ public class UserAPI {
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        // Your database code here
                         if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
                             message = "Successfully started";
                         } else {
