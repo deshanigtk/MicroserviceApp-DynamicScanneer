@@ -16,6 +16,7 @@
 * under the License.
 */
 
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,8 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.wso2.dynamicscanner.observerables.Wso2ServerHandler;
 import org.wso2.dynamicscanner.observerables.ZapScanner;
 
-import java.io.File;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
@@ -77,7 +78,7 @@ public class UserAPI {
             @Override
             public void update(Observable o, Object arg) {
                 if (new File(reportFilePath).exists()) {
-                    message = "success";
+                    message = "ZAP scan successfully completed";
                 } else {
                     message = "scan failed";
                 }
@@ -99,7 +100,7 @@ public class UserAPI {
     @RequestMapping(value = "uploadZipFileExtractAndStartServer", method = RequestMethod.POST)
     @ResponseBody
     public void uploadZipFileExtractAndStartServer(@RequestParam("file") MultipartFile file,
-                                               @RequestParam boolean replaceExisting) throws IOException {
+                                                   @RequestParam boolean replaceExisting) throws IOException {
 
 
         Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(file, productPath, replaceExisting);
@@ -120,12 +121,30 @@ public class UserAPI {
                         }
                         LOGGER.info("WSO2 server status: " + message);
                     }
-                }, 70000);
+                }, 120000);
 
 
             }
         };
         wso2ServerHandler.addObserver(wso2ServerObserver);
         new Thread(wso2ServerHandler).start();
+    }
+
+    @RequestMapping(value = "getReport", method = RequestMethod.GET, produces = "application/octet-stream")
+    @ResponseBody
+    public void runZapScan(HttpServletResponse response) {
+        if (new File(reportFilePath).exists()) {
+            try {
+                InputStream inputStream = new FileInputStream(reportFilePath);
+                IOUtils.copy(inputStream, response.getOutputStream());
+                response.flushBuffer();
+                LOGGER.info("Successfully write to output stream");
+            } catch (IOException e) {
+                e.printStackTrace();
+                LOGGER.error(e.toString());
+            }
+        } else {
+            LOGGER.error("Report is not found");
+        }
     }
 }
