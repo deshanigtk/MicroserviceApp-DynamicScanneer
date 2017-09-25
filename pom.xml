@@ -14,7 +14,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <fork>true</fork>
-                    <mainClass>App</mainClass>
+                    <mainClass>org.wso2.security.dynamic.scanner.App</mainClass>
                 </configuration>
                 <executions>
                     <execution>
