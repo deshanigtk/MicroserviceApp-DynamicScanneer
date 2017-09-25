@@ -63,13 +63,10 @@ public class Wso2ServerHandler extends Observable implements Runnable {
     private void uploadZipFileExtractAndStartServer() throws IOException {
         boolean isProductPathCreated;
         if (new File(productPath).exists() && replaceExisting) {
-            System.out.println("kkkkkkkkkkkkkkkk");
             FileUtils.deleteDirectory(new File(productPath));
-            System.out.println("product path availability: " + new File(productPath).exists());
         }
         isProductPathCreated = new File(productPath).exists() || new File(productPath).mkdir();
         if (isProductPathCreated) {
-            System.out.println("product path created");
             String fileName = uploadFile(file);
             if (fileName != null) {
                 String folderName = FileHandler.extractFolder(productPath + File.separator + fileName);
@@ -134,7 +131,6 @@ public class Wso2ServerHandler extends Observable implements Runnable {
 
     private String uploadFile(MultipartFile file) {
         if (!file.isEmpty()) {
-            System.out.println("file not wmptyyyyy");
             String fileName = file.getOriginalFilename();
             if (fileName.endsWith(".zip")) {
                 try {
