@@ -16,6 +16,7 @@
 * under the License.
 */
 
+import org.apache.http.HttpResponse;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +29,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.wso2.dynamicscanner.observerables.Wso2ServerHandler;
-import org.wso2.dynamicscanner.observerables.ZapScanner;
+import org.wso2.security.dynamic.scanner.observerables.Wso2ServerHandler;
+import org.wso2.security.dynamic.scanner.observerables.ZapScanner;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -47,7 +48,7 @@ import java.util.TimerTask;
 @EnableAutoConfiguration
 @PropertySource("classpath:global.properties")
 @RequestMapping("dynamicScanner")
-public class UserAPI {
+public class DynamicScannerAPI {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -132,19 +133,20 @@ public class UserAPI {
 
     @RequestMapping(value = "getReport", method = RequestMethod.GET, produces = "application/octet-stream")
     @ResponseBody
-    public void runZapScan(HttpServletResponse response) {
+    public HttpResponse runZapScan(HttpServletResponse response) {
         if (new File(reportFilePath).exists()) {
             try {
                 InputStream inputStream = new FileInputStream(reportFilePath);
                 IOUtils.copy(inputStream, response.getOutputStream());
                 response.flushBuffer();
                 LOGGER.info("Successfully write to output stream");
+                return (HttpResponse) response;
             } catch (IOException e) {
                 e.printStackTrace();
                 LOGGER.error(e.toString());
             }
         } else {
             LOGGER.error("Report is not found");
-        }
+        }return null;
     }
 }

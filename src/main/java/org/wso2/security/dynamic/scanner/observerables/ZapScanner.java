@@ -1,4 +1,4 @@
-package org.wso2.dynamicscanner.observerables;
+package org.wso2.security.dynamic.scanner.observerables;
 /*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -22,9 +22,9 @@ import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.dynamicscanner.clients.ZapClient;
-import org.wso2.dynamicscanner.handlers.HttpRequestHandler;
-import org.wso2.dynamicscanner.handlers.HttpsRequestHandler;
+import org.wso2.security.dynamic.scanner.clients.ZapClient;
+import org.wso2.security.dynamic.scanner.handlers.HttpRequestHandler;
+import org.wso2.security.dynamic.scanner.handlers.HttpsRequestHandler;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;

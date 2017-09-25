@@ -1,4 +1,4 @@
-package org.wso2.dynamicscanner.observerables;
+package org.wso2.security.dynamic.scanner.observerables;
 /*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -21,7 +21,7 @@ import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
-import org.wso2.dynamicscanner.handlers.FileHandler;
+import org.wso2.security.dynamic.scanner.handlers.FileHandler;
 
 import java.io.*;
 import java.net.Socket;
@@ -63,10 +63,13 @@ public class Wso2ServerHandler extends Observable implements Runnable {
     private void uploadZipFileExtractAndStartServer() throws IOException {
         boolean isProductPathCreated;
         if (new File(productPath).exists() && replaceExisting) {
+            System.out.println("kkkkkkkkkkkkkkkk");
             FileUtils.deleteDirectory(new File(productPath));
+            System.out.println("product path availability: " + new File(productPath).exists());
         }
         isProductPathCreated = new File(productPath).exists() || new File(productPath).mkdir();
         if (isProductPathCreated) {
+            System.out.println("product path created");
             String fileName = uploadFile(file);
             if (fileName != null) {
                 String folderName = FileHandler.extractFolder(productPath + File.separator + fileName);
@@ -131,6 +134,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
 
     private String uploadFile(MultipartFile file) {
         if (!file.isEmpty()) {
+            System.out.println("file not wmptyyyyy");
             String fileName = file.getOriginalFilename();
             if (fileName.endsWith(".zip")) {
                 try {
@@ -150,6 +154,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
                 LOGGER.error("Not a zip file");
             }
         } else {
+            System.out.println("file empty: " + file.isEmpty());
             LOGGER.error("No file");
         }
         return null;

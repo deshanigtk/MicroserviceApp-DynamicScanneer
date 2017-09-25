@@ -1,4 +1,4 @@
-package org.wso2.dynamicscanner.clients;
+package org.wso2.security.dynamic.scanner.clients;
 /*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *

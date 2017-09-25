@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c33856bf-9d70-46dd-a893-5d2da523b7a6" name="Default" comment="">
+    <list default="true" id="c33856bf-9d70-46dd-a893-5d2da523b7a6" name="Default" comment="Changed package structure">
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/UserAPI.java" afterPath="$PROJECT_DIR$/src/main/java/DynamicScannerAPI.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/clients/ZapClient.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/clients/ZapClient.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/FileHandler.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/FileHandler.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/HttpRequestHandler.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/HttpRequestHandler.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/HttpsRequestHandler.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/HttpsRequestHandler.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/observerables/Wso2ServerHandler.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observerables/Wso2ServerHandler.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/observerables/ZapScanner.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observerables/ZapScanner.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/resources/org/wso2/dynamicscanner/localhost.crt" afterPath="$PROJECT_DIR$/src/main/resources/org/wso2/security/dynamic/scanner/localhost.crt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/resources/org/wso2/dynamicscanner/truststore.jks" afterPath="$PROJECT_DIR$/src/main/resources/org/wso2/security/dynamic/scanner/truststore.jks" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/UserAPI.class" afterPath="$PROJECT_DIR$/target/classes/UserAPI.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/UserAPI.java" afterPath="$PROJECT_DIR$/src/main/java/UserAPI.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/global.properties" afterPath="$PROJECT_DIR$/src/main/resources/global.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/App.java" afterPath="$PROJECT_DIR$/src/main/java/App.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/application.properties" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -19,9 +28,9 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="HttpRequestHandler.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/HttpRequestHandler.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/HttpRequestHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
+            <state relative-caret-position="18">
               <caret line="37" column="13" lean-forward="false" selection-start-line="37" selection-start-column="13" selection-end-line="37" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -31,9 +40,9 @@
         </entry>
       </file>
       <file leaf-file-name="FileHandler.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/FileHandler.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/FileHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1062">
+            <state relative-caret-position="742">
               <caret line="62" column="31" lean-forward="false" selection-start-line="62" selection-start-column="31" selection-end-line="62" selection-end-column="31" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -42,10 +51,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="HttpsRequestHandler.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/HttpsRequestHandler.java">
+      <file leaf-file-name="HttpsRequestHandler.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/HttpsRequestHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="666">
+            <state relative-caret-position="342">
               <caret line="49" column="0" lean-forward="false" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -55,7 +64,7 @@
         </entry>
       </file>
       <file leaf-file-name="ZapClient.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/clients/ZapClient.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/clients/ZapClient.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="4230">
               <caret line="245" column="24" lean-forward="false" selection-start-line="245" selection-start-column="24" selection-end-line="245" selection-end-column="24" />
@@ -69,20 +78,20 @@
       <file leaf-file-name="application.properties" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/resources/application.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="30" lean-forward="false" selection-start-line="0" selection-start-column="30" selection-end-line="2" selection-end-column="44" />
+            <state relative-caret-position="36">
+              <caret line="2" column="44" lean-forward="true" selection-start-line="2" selection-start-column="44" selection-end-line="2" selection-end-column="44" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UserAPI.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/UserAPI.java">
+      <file leaf-file-name="DynamicScannerAPI.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/DynamicScannerAPI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="523">
-              <caret line="130" column="5" lean-forward="true" selection-start-line="130" selection-start-column="5" selection-end-line="130" selection-end-column="5" />
+            <state relative-caret-position="1458">
+              <caret line="81" column="52" lean-forward="false" selection-start-line="81" selection-start-column="52" selection-end-line="81" selection-end-column="52" />
               <folding>
-                <element signature="e#0#5793#0" expanded="true" />
+                <element signature="e#0#5928#0" expanded="true" />
                 <element signature="imports" expanded="true" />
               </folding>
             </state>
@@ -100,10 +109,10 @@
         </entry>
       </file>
       <file leaf-file-name="Wso2ServerHandler.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/observerables/Wso2ServerHandler.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observerables/Wso2ServerHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2322">
-              <caret line="137" column="49" lean-forward="false" selection-start-line="137" selection-start-column="49" selection-end-line="137" selection-end-column="49" />
+            <state relative-caret-position="-936">
+              <caret line="67" column="50" lean-forward="true" selection-start-line="67" selection-start-column="50" selection-end-line="67" selection-end-column="50" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -122,7 +131,7 @@
         </entry>
       </file>
       <file leaf-file-name="ZapScanner.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/observerables/ZapScanner.java">
+        <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observerables/ZapScanner.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="756">
               <caret line="55" column="41" lean-forward="false" selection-start-line="55" selection-start-column="41" selection-end-line="55" selection-end-column="41" />
@@ -194,11 +203,11 @@
         <option value="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/HttpsRequestHandler.java" />
         <option value="$PROJECT_DIR$/src/main/java/App.java" />
         <option value="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/clients/ZapClient.java" />
-        <option value="$PROJECT_DIR$/src/main/resources/application.properties" />
-        <option value="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/observerables/Wso2ServerHandler.java" />
         <option value="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/observerables/ZapScanner.java" />
         <option value="$PROJECT_DIR$/src/main/resources/global.properties" />
         <option value="$PROJECT_DIR$/src/main/java/UserAPI.java" />
+        <option value="$PROJECT_DIR$/src/main/resources/application.properties" />
+        <option value="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/observerables/Wso2ServerHandler.java" />
       </list>
     </option>
   </component>
@@ -223,10 +232,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="114" />
-    <option name="y" value="88" />
+    <option name="x" value="696" />
+    <option name="y" value="154" />
     <option name="width" value="1398" />
-    <option name="height" value="992" />
+    <option name="height" value="964" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -243,6 +252,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="Scratches">
         <subPane>
           <expand>
@@ -285,7 +295,7 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="dynamicscanner" type="462c0819:PsiDirectoryNode" />
+              <item name="scanner" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="MicroserviceApp-DynamicScanner" type="b2602c69:ProjectViewProjectNode" />
@@ -293,26 +303,8 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="dynamicscanner" type="462c0819:PsiDirectoryNode" />
-              <item name="clients" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MicroserviceApp-DynamicScanner" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MicroserviceApp-DynamicScanner" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="dynamicscanner" type="462c0819:PsiDirectoryNode" />
+              <item name="scanner" type="462c0819:PsiDirectoryNode" />
               <item name="handlers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MicroserviceApp-DynamicScanner" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MicroserviceApp-DynamicScanner" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="dynamicscanner" type="462c0819:PsiDirectoryNode" />
-              <item name="observerables" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="MicroserviceApp-DynamicScanner" type="b2602c69:ProjectViewProjectNode" />
@@ -332,7 +324,6 @@
       </pane>
       <pane id="PackagesPane" />
       <pane id="AndroidView" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -346,19 +337,22 @@
     <property name="project.structure.side.proportion" value="0.2" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources" />
-      <recent name="$PROJECT_DIR$/src/main/resources/org/wso2/dynamicscanner" />
-      <recent name="$PROJECT_DIR$/src/main" />
-    </key>
-    <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="" />
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="org.wso2.security.dynamic.scanner" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main" />
       <recent name="$PROJECT_DIR$/src/main/resources" />
       <recent name="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers" />
       <recent name="$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/clients" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources" />
+      <recent name="$PROJECT_DIR$/src/main/resources/org/wso2/dynamicscanner" />
+      <recent name="$PROJECT_DIR$/src/main" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -418,7 +412,7 @@
     </configuration>
     <configuration name="UserAPI" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="UserAPI" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="DynamicScannerAPI" />
       <module name="MicroServiceApp-ZAP" />
       <envs />
     </configuration>
@@ -619,7 +613,9 @@
       <workItem from="1505982385148" duration="7111000" />
       <workItem from="1506050344105" duration="6102000" />
       <workItem from="1506165167669" duration="6208000" />
-      <workItem from="1506221894949" duration="388000" />
+      <workItem from="1506221894949" duration="3467000" />
+      <workItem from="1506236922010" duration="3356000" />
+      <workItem from="1506310680016" duration="923000" />
     </task>
     <task id="LOCAL-00001" summary="scans are seperated into methods, create constants class">
       <created>1504165786894</created>
@@ -726,11 +722,18 @@
       <option name="project" value="LOCAL" />
       <updated>1505995299679</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Api method to get report">
+      <created>1506222303231</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1506222303232</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="296167000" />
+    <option name="totallyTimeSpent" value="303525000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -742,7 +745,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="114" y="88" width="1857" height="1092" extended-state="6" />
+    <frame x="696" y="154" width="1857" height="1092" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -753,14 +756,15 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5322581" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.43548387" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Spring" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3291536" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.013978494" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3892473" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25207296" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25760087" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Bean Validation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295688" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.10752688" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25262576" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2498312" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -773,7 +777,6 @@
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2498618" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3268817" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.10752688" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -797,7 +800,9 @@
     <MESSAGE value="change observerable notify, add timer" />
     <MESSAGE value="add comments" />
     <MESSAGE value="add upload methods" />
-    <option name="LAST_COMMIT_MESSAGE" value="add upload methods" />
+    <MESSAGE value="Api method to get report" />
+    <MESSAGE value="Changed package structure" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed package structure" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -824,12 +829,12 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/MainController.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/ZapClientOld.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/HttpsHandler.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/UserAPI.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/DynamicScannerAPI.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
           <caret line="26" column="1" lean-forward="true" selection-start-line="26" selection-start-column="1" selection-end-line="26" selection-end-column="1" />
           <folding>
-            <element signature="e#0#5793#0" expanded="true" />
+            <element signature="e#0#5928#0" expanded="true" />
             <element signature="imports" expanded="true" />
           </folding>
         </state>
@@ -846,12 +851,12 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/MainController.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/ZapClientOld.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/MainController.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/UserAPI.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/DynamicScannerAPI.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
           <caret line="20" column="15" lean-forward="false" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
           <folding>
-            <element signature="e#0#5793#0" expanded="true" />
+            <element signature="e#0#5928#0" expanded="true" />
             <element signature="imports" expanded="true" />
           </folding>
         </state>
@@ -928,7 +933,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/HttpRequestHandler.java" />
     <entry file="file://$PROJECT_DIR$/src/main/dynamicscanner/localhost.crt" />
-    <entry file="file://$PROJECT_DIR$/src/main/resources/org/wso2/dynamicscanner/localhost.crt">
+    <entry file="file://$PROJECT_DIR$/src/main/resources/org/wso2/security/dynamic/scanner/localhost.crt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
           <caret line="14" column="0" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
@@ -969,56 +974,18 @@
         <state relative-caret-position="72">
           <caret line="20" column="31" lean-forward="false" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
           <folding>
-            <element signature="e#0#932#0" expanded="false" />
+            <element signature="e#0#942#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/HttpRequestHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="37" column="13" lean-forward="false" selection-start-line="37" selection-start-column="13" selection-end-line="37" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/FileHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1062">
-          <caret line="62" column="31" lean-forward="false" selection-start-line="62" selection-start-column="31" selection-end-line="62" selection-end-column="31" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/handlers/HttpsRequestHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="666">
-          <caret line="49" column="0" lean-forward="false" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/clients/ZapClient.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/clients/ZapClient.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4230">
           <caret line="245" column="24" lean-forward="false" selection-start-line="245" selection-start-column="24" selection-end-line="245" selection-end-column="24" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/application.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="30" lean-forward="false" selection-start-line="0" selection-start-column="30" selection-end-line="2" selection-end-column="44" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1030,16 +997,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/observerables/Wso2ServerHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2322">
-          <caret line="137" column="49" lean-forward="false" selection-start-line="137" selection-start-column="49" selection-end-line="137" selection-end-column="49" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///usr/lib/jvm/java-8-oracle/src.zip!/java/util/zip/ZipFile.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3150">
@@ -1048,7 +1005,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/dynamicscanner/observerables/ZapScanner.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observerables/ZapScanner.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="756">
           <caret line="55" column="41" lean-forward="false" selection-start-line="55" selection-start-column="41" selection-end-line="55" selection-end-column="41" />
@@ -1058,12 +1015,60 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/UserAPI.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/DynamicScannerAPI.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="523">
-          <caret line="130" column="5" lean-forward="true" selection-start-line="130" selection-start-column="5" selection-end-line="130" selection-end-column="5" />
+        <state relative-caret-position="1458">
+          <caret line="81" column="52" lean-forward="false" selection-start-line="81" selection-start-column="52" selection-end-line="81" selection-end-column="52" />
           <folding>
-            <element signature="e#0#5793#0" expanded="true" />
+            <element signature="e#0#5928#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observerables/Wso2ServerHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-936">
+          <caret line="67" column="50" lean-forward="true" selection-start-line="67" selection-start-column="50" selection-end-line="67" selection-end-column="50" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/application.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="36">
+          <caret line="2" column="44" lean-forward="true" selection-start-line="2" selection-start-column="44" selection-end-line="2" selection-end-column="44" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/FileHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="742">
+          <caret line="62" column="31" lean-forward="false" selection-start-line="62" selection-start-column="31" selection-end-line="62" selection-end-column="31" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/HttpRequestHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18">
+          <caret line="37" column="13" lean-forward="false" selection-start-line="37" selection-start-column="13" selection-end-line="37" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/HttpsRequestHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="49" column="0" lean-forward="false" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
+          <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>

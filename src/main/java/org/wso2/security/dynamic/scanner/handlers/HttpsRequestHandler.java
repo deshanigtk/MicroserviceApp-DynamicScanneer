@@ -1,4 +1,4 @@
-package org.wso2.dynamicscanner.handlers;
+package org.wso2.security.dynamic.scanner.handlers;
 /*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -41,7 +41,7 @@ public class HttpsRequestHandler {
     private static final String trustStoreType = "JKS";
     private static final String trustManagerType = "SunX509";
     private static final String protocol = "TLSv1.2";
-    private static final String trustStorePath = "org/wso2/dynamicscanner/truststore.jks";
+    private static final String trustStorePath = "org/wso2/security/dynamic/scanner/truststore.jks";
     private static final String trustStorePassword = "wso2carbon";
 
     private static KeyStore trustStore;
