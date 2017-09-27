@@ -2,7 +2,11 @@
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
-      <configuration />
+      <configuration>
+        <fileset id="fileset" name="WebSocketConfig" removed="false">
+          <file>file://$MODULE_DIR$/src/main/java/org/wso2/security/dynamic/scanner/config/WebSocketConfig.java</file>
+        </fileset>
+      </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
@@ -51,5 +55,8 @@
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.10" level="project" />
     <orderEntry type="library" name="Maven: org.json:json:20131018" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpmime:4.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-websocket:1.4.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-messaging:4.3.5.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-websocket:4.3.5.RELEASE" level="project" />
   </component>
 </module>

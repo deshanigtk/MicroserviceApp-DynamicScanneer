@@ -17,27 +17,16 @@ package org.wso2.security.dynamic.scanner;/*
 */
 
 import org.apache.http.HttpResponse;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.wso2.security.dynamic.scanner.observerables.Wso2ServerHandler;
-import org.wso2.security.dynamic.scanner.observerables.ZapScanner;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * API which exposes to outside world
@@ -46,19 +35,18 @@ import java.util.TimerTask;
  */
 @Controller
 @EnableAutoConfiguration
-@PropertySource("classpath:global.properties")
 @RequestMapping("dynamicScanner")
 public class DynamicScannerAPI {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    @RequestMapping(value = "uploadZipFileExtractAndStartServer", method = RequestMethod.POST)
+    @ResponseBody
+    public void uploadZipFileExtractAndStartServer(@RequestParam MultipartFile file,
+                                                   @RequestParam boolean replaceExisting) throws IOException {
 
-    @Value("${report_file_path}")
-    private String reportFilePath;
+        DynamicScannerService.uploadZipFileExtractAndStartServer(file, replaceExisting);
+    }
 
-    @Value("${product_path}")
-    private String productPath;
-
-    @RequestMapping(value = "runZap", method = RequestMethod.GET)
+    @RequestMapping(value = "runZapScan", method = RequestMethod.GET)
     @ResponseBody
     public void runZapScan(@RequestParam String zapHost,
                            @RequestParam int zapPort,
@@ -69,84 +57,13 @@ public class DynamicScannerAPI {
                            @RequestParam String urlListPath,
                            @RequestParam boolean isAuthenticatedScan) throws Exception {
 
-
-        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, sessionName, productHostRelativeToZap, productHostRelativeToThis,
-                productPort, urlListPath, isAuthenticatedScan);
-
-        Observer zapObserver = new Observer() {
-            String message;
-
-            @Override
-            public void update(Observable o, Object arg) {
-                if (new File(reportFilePath).exists()) {
-                    message = "ZAP scan successfully completed";
-                } else {
-                    message = "scan failed";
-                }
-                LOGGER.info("Zap scan status: " + message);
-            }
-        };
-        zapScanner.addObserver(zapObserver);
-        if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
-            if (Wso2ServerHandler.hostAvailabilityCheck(zapHost, zapPort)) {
-                new Thread(zapScanner).start();
-            } else {
-                LOGGER.error("ZAP is not in running status");
-            }
-        } else {
-            LOGGER.error("Wso2 server is not in running status");
-        }
+        DynamicScannerService.runZapScan(zapHost, zapPort, sessionName, productHostRelativeToZap, productHostRelativeToThis, productPort, urlListPath, isAuthenticatedScan);
     }
 
-    @RequestMapping(value = "uploadZipFileExtractAndStartServer", method = RequestMethod.POST)
-    @ResponseBody
-    public void uploadZipFileExtractAndStartServer(@RequestParam("file") MultipartFile file,
-                                                   @RequestParam boolean replaceExisting) throws IOException {
-
-
-        Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(file, productPath, replaceExisting);
-        Observer wso2ServerObserver = new Observer() {
-
-            String message;
-
-            @Override
-            public void update(Observable o, Object arg) {
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
-                            message = "Successfully started";
-                        } else {
-                            message = "Failed to start the server";
-                        }
-                        LOGGER.info("WSO2 server status: " + message);
-                    }
-                }, 120000);
-
-
-            }
-        };
-        wso2ServerHandler.addObserver(wso2ServerObserver);
-        new Thread(wso2ServerHandler).start();
-    }
 
     @RequestMapping(value = "getReport", method = RequestMethod.GET, produces = "application/octet-stream")
     @ResponseBody
-    public HttpResponse runZapScan(HttpServletResponse response) {
-        if (new File(reportFilePath).exists()) {
-            try {
-                InputStream inputStream = new FileInputStream(reportFilePath);
-                IOUtils.copy(inputStream, response.getOutputStream());
-                response.flushBuffer();
-                LOGGER.info("Successfully write to output stream");
-                return (HttpResponse) response;
-            } catch (IOException e) {
-                e.printStackTrace();
-                LOGGER.error(e.toString());
-            }
-        } else {
-            LOGGER.error("Report is not found");
-        }return null;
+    public HttpResponse getReport(HttpServletResponse response) {
+        return DynamicScannerService.getReport(response);
     }
 }

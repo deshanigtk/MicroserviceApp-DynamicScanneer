@@ -54,13 +54,13 @@ public class Wso2ServerHandler extends Observable implements Runnable {
             uploadZipFileExtractAndStartServer();
             setChanged();
             notifyObservers(true);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             LOGGER.error(e.toString());
         }
     }
 
-    private void uploadZipFileExtractAndStartServer() throws IOException {
+    private void uploadZipFileExtractAndStartServer() throws IOException, InterruptedException {
         boolean isProductPathCreated;
         if (new File(productPath).exists() && replaceExisting) {
             FileUtils.deleteDirectory(new File(productPath));
@@ -75,6 +75,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
 
                 if (wso2serverFileAbsolutePath != null) {
                     Runtime.getRuntime().exec(new String[]{"chmod", "777", wso2serverFileAbsolutePath});
+                    Thread.sleep(500);
                     runShellScript(new String[]{wso2serverFileAbsolutePath});
                 }
             }
@@ -98,7 +99,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
     }
 
     private void runShellScript(String[] command) throws IOException {
-        Process proc = Runtime.getRuntime().exec(command);
+        Runtime.getRuntime().exec(command);
 
 //        BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 //        BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));

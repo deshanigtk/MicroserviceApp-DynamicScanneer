@@ -59,7 +59,7 @@ public class ZapScanner extends Observable implements Runnable {
     private String valuePassword = "admin";
     private String loginUrl="/carbon/admin/login_action.jsp";
     private String logoutUrl="/carbon/admin/logout_action.jsp";
-    public String reportFilePath="/home/ZapScanReport.html";
+    private String reportFilePath="/home/ZapScanReport.html";
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
