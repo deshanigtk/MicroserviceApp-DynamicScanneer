@@ -16,16 +16,18 @@ package org.wso2.security.dynamic.scanner;/*
 * under the License.
 */
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Main method to start the app
  *
  * @author Deshani Geethika
  */
+@SpringBootApplication
 public class App {
 
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(DynamicScannerAPI.class, args);
+        SpringApplication.run(App.class, args);
     }
 
 }

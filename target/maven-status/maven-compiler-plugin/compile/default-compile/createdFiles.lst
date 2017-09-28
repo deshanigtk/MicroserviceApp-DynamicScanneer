@@ -5,6 +5,9 @@ org/wso2/security/dynamic/scanner/DynamicScannerService$1.class
 org/wso2/security/dynamic/scanner/DynamicScannerService$2$1.class
 org/wso2/security/dynamic/scanner/handlers/HttpsRequestHandler.class
 org/wso2/security/dynamic/scanner/DynamicScannerAPI.class
+org/wso2/security/dynamic/scanner/Message.class
+org/wso2/security/dynamic/scanner/OutputMessage.class
+org/wso2/security/dynamic/scanner/config/WebSocketConfig.class
 org/wso2/security/dynamic/scanner/Constants.class
 org/wso2/security/dynamic/scanner/DynamicScannerService$2.class
 org/wso2/security/dynamic/scanner/observerables/Wso2ServerHandler.class
