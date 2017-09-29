@@ -18,9 +18,6 @@ package org.wso2.security.dynamic.scanner;/*
 
 import org.apache.http.HttpResponse;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,42 +37,41 @@ import java.io.*;
 @EnableAutoConfiguration
 public class DynamicScannerAPI {
 
-//    @RequestMapping(value = "uploadZipFileExtractAndStartServer", method = RequestMethod.POST)
-//    @ResponseBody
-//    public void uploadZipFileExtractAndStartServer(@RequestParam MultipartFile file,
-//                                                   @RequestParam boolean replaceExisting) throws IOException {
-//
-//        DynamicScannerService.uploadZipFileExtractAndStartServer(file, replaceExisting);
-//    }
-//
-//    @RequestMapping(value = "runZapScan", method = RequestMethod.GET)
-//    @ResponseBody
-//    public void runZapScan(@RequestParam String zapHost,
-//                           @RequestParam int zapPort,
-//                           @RequestParam String sessionName,
-//                           @RequestParam String productHostRelativeToZap,
-//                           @RequestParam String productHostRelativeToThis,
-//                           @RequestParam int productPort,
-//                           @RequestParam String urlListPath,
-//                           @RequestParam boolean isAuthenticatedScan) throws Exception {
-//
-//        DynamicScannerService.runZapScan(zapHost, zapPort, sessionName, productHostRelativeToZap, productHostRelativeToThis, productPort, urlListPath, isAuthenticatedScan);
-//    }
-//
-//
-//    @RequestMapping(value = "getReport", method = RequestMethod.GET, produces = "application/octet-stream")
-//    @ResponseBody
-//    public HttpResponse getReport(HttpServletResponse response) {
-//        return DynamicScannerService.getReport(response);
-//    }
-
-    @MessageMapping("/chat/{topic}")
-    @SendTo("/topic/messages")
-    public OutputMessage send(@DestinationVariable("topic") String topic,
-                              Message message) throws Exception
-    {
-        System.out.println(topic);
-        System.out.println(message.getText());
-        return new OutputMessage(message.getFrom(), message.getText(), topic);
+    @RequestMapping(value = "configureAutomationManager", method = RequestMethod.GET)
+    @ResponseBody
+    public void configureAutomationManager(@RequestParam String host, @RequestParam int port, @RequestParam String myContainerId) throws IOException {
+        DynamicScannerService.configureAutomationManager(host, port, myContainerId);
     }
+
+
+    @RequestMapping(value = "uploadZipFileExtractAndStartServer", method = RequestMethod.POST)
+    @ResponseBody
+    public void uploadZipFileExtractAndStartServer(@RequestParam MultipartFile file,
+                                                   @RequestParam boolean replaceExisting) throws IOException {
+
+        DynamicScannerService.uploadZipFileExtractAndStartServer(file, replaceExisting);
+    }
+
+    @RequestMapping(value = "runZapScan", method = RequestMethod.GET)
+    @ResponseBody
+    public void runZapScan(@RequestParam String zapHost,
+                           @RequestParam int zapPort,
+                           @RequestParam String contextName,
+                           @RequestParam String sessionName,
+                           @RequestParam String productHostRelativeToZap,
+                           @RequestParam String productHostRelativeToThis,
+                           @RequestParam int productPort,
+                           @RequestParam String urlListPath,
+                           @RequestParam boolean isAuthenticatedScan) throws Exception {
+
+        DynamicScannerService.runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis, productPort, urlListPath, isAuthenticatedScan);
+    }
+
+
+    @RequestMapping(value = "getReport", method = RequestMethod.GET, produces = "application/octet-stream")
+    @ResponseBody
+    public HttpResponse getReport(HttpServletResponse response) {
+        return DynamicScannerService.getReport(response);
+    }
+
 }

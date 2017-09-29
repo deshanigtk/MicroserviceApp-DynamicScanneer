@@ -21,8 +21,8 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
-import org.wso2.security.dynamic.scanner.observerables.Wso2ServerHandler;
-import org.wso2.security.dynamic.scanner.observerables.ZapScanner;
+import org.wso2.security.dynamic.scanner.observable.Wso2ServerHandler;
+import org.wso2.security.dynamic.scanner.observable.ZapScanner;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -36,38 +36,14 @@ import java.util.TimerTask;
 
 public class DynamicScannerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicScannerService.class);
+    private static String automationManagerHost;
+    private static int automationManagerPort;
+    private static String myContainerId;
 
-    public static void runZapScan(String zapHost, int zapPort, String sessionName,
-                                  String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
-                                  String urlListPath, boolean isAuthenticatedScan) throws Exception {
-
-
-        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, sessionName, productHostRelativeToZap, productHostRelativeToThis,
-                productPort, urlListPath, isAuthenticatedScan);
-
-        Observer zapObserver = new Observer() {
-            String message;
-
-            @Override
-            public void update(Observable o, Object arg) {
-                if (new File(Constants.REPORT_FILE_PATH).exists()) {
-                    message = "ZAP scan successfully completed";
-                } else {
-                    message = "scan failed";
-                }
-                LOGGER.info("Zap scan status: " + message);
-            }
-        };
-        zapScanner.addObserver(zapObserver);
-        if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
-            if (Wso2ServerHandler.hostAvailabilityCheck(zapHost, zapPort)) {
-                new Thread(zapScanner).start();
-            } else {
-                LOGGER.error("ZAP is not in running status");
-            }
-        } else {
-            LOGGER.error("Wso2 server is not in running status");
-        }
+    public static void configureAutomationManager(String host, int port, String myContainerId) {
+        automationManagerHost = host;
+        automationManagerPort = port;
+        DynamicScannerService.myContainerId = myContainerId;
     }
 
     public static void uploadZipFileExtractAndStartServer(MultipartFile file, boolean replaceExisting) throws IOException {
@@ -96,6 +72,40 @@ public class DynamicScannerService {
         new Thread(wso2ServerHandler).start();
     }
 
+
+    public static void runZapScan(String zapHost, int zapPort, String contextName, String sessionName,
+                                  String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
+                                  String urlListPath, boolean isAuthenticatedScan) throws Exception {
+
+
+        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
+                productPort, urlListPath, isAuthenticatedScan);
+
+        Observer zapObserver = new Observer() {
+            String message;
+
+            @Override
+            public void update(Observable o, Object arg) {
+                if (new File(Constants.REPORT_FILE_PATH).exists()) {
+                    message = "ZAP scan successfully completed";
+                } else {
+                    message = "scan failed";
+                }
+                LOGGER.info("Zap scan status: " + message);
+            }
+        };
+        zapScanner.addObserver(zapObserver);
+        if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
+            if (Wso2ServerHandler.hostAvailabilityCheck(zapHost, zapPort)) {
+                new Thread(zapScanner).start();
+            } else {
+                LOGGER.error("ZAP is not in running status");
+            }
+        } else {
+            LOGGER.error("Wso2 server is not in running status");
+        }
+    }
+
     public static HttpResponse getReport(HttpServletResponse response) {
         if (new File(Constants.REPORT_FILE_PATH).exists()) {
             try {
@@ -112,5 +122,17 @@ public class DynamicScannerService {
             LOGGER.error("Report is not found");
         }
         return null;
+    }
+
+    public static String getAutomationManagerHost() {
+        return automationManagerHost;
+    }
+
+    public static int getAutomationManagerPort() {
+        return automationManagerPort;
+    }
+
+    public static String getMyContainerId() {
+        return myContainerId;
     }
 }

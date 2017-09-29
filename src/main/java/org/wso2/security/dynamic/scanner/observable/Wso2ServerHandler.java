@@ -1,4 +1,4 @@
-package org.wso2.security.dynamic.scanner.observerables;
+package org.wso2.security.dynamic.scanner.observable;
 /*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -74,7 +74,7 @@ public class Wso2ServerHandler extends Observable implements Runnable {
                 findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
 
                 if (wso2serverFileAbsolutePath != null) {
-                    Runtime.getRuntime().exec(new String[]{"chmod", "777", wso2serverFileAbsolutePath});
+                    Runtime.getRuntime().exec(new String[]{"chmod", "+x", wso2serverFileAbsolutePath});
                     Thread.sleep(500);
                     runShellScript(new String[]{wso2serverFileAbsolutePath});
                 }

@@ -1,4 +1,4 @@
-package org.wso2.security.dynamic.scanner.observerables;
+package org.wso2.security.dynamic.scanner.observable;
 /*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -31,6 +31,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+
 /**
  * Main ZAP scanning methods
  *
@@ -43,6 +44,8 @@ public class ZapScanner extends Observable implements Runnable {
     private final String HTTPS_SCHEME = "https";
     private final String POST = "POST";
 
+    private String contextName;
+    private String contextId;
     private String sessionName;
     private String productHostRelativeToZap;
     private String productHostRelativeToThis;
@@ -57,9 +60,9 @@ public class ZapScanner extends Observable implements Runnable {
     private String valueUserName = "admin";
     private String keyPassword = "password";
     private String valuePassword = "admin";
-    private String loginUrl="/carbon/admin/login_action.jsp";
-    private String logoutUrl="/carbon/admin/logout_action.jsp";
-    private String reportFilePath="/home/ZapScanReport.html";
+    private String loginUrl = "/carbon/admin/login_action.jsp";
+    private String logoutUrl = "/carbon/admin/logout_action.jsp";
+    private String reportFilePath = "/home/ZapScanReport.html";
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -75,9 +78,10 @@ public class ZapScanner extends Observable implements Runnable {
         }
     }
 
-    public ZapScanner(String zapHost, int zapPort, String sessionName, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
-                      String urlListPath, boolean isAuthenticatedScan) throws URISyntaxException {
+    public ZapScanner(String zapHost, int zapPort, String contextName, String sessionName, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
+                      String urlListPath, boolean isAuthenticatedScan) throws URISyntaxException, IOException, InterruptedException {
 
+        this.contextName = contextName;
         this.sessionName = sessionName;
         this.productHostRelativeToZap = productHostRelativeToZap;
         this.productHostRelativeToThis = productHostRelativeToThis;
@@ -95,6 +99,13 @@ public class ZapScanner extends Observable implements Runnable {
 
     private void startScan() throws Exception {
         LOGGER.info("Starting ZAP scanning process ");
+
+        //Create new context
+        HttpResponse createNewContextResponse = zapClient.createNewContext(contextName, false);
+        contextId = extractJsonValue(createNewContextResponse, "contextId");
+
+        HttpResponse includeInContextResponse = zapClient.includeInContext(contextName, productUri.toString()+"*", false);
+        LOGGER.info("Include in context response: " + HttpRequestHandler.printResponse(includeInContextResponse));
 
         //Create an empty session
         HttpResponse createEmptySessionResponse = zapClient.createEmptySession(productUri.toString(), sessionName, false);
@@ -214,39 +225,19 @@ public class ZapScanner extends Observable implements Runnable {
     }
 
     private void runActiveScan() throws IOException, InterruptedException, URISyntaxException {
-        BufferedReader bufferedReader;
-        ArrayList<String> activeScanIds = new ArrayList<>();
+        String activeScanId;
 
-        try {
-            bufferedReader = new BufferedReader(new FileReader(urlListPath));
-            String line;
+        HttpResponse activeScanResponse = zapClient.activeScan("", "", "", "", "", "", contextId, false);
+        activeScanId = extractJsonValue(activeScanResponse, "scan");
 
-            while ((line = bufferedReader.readLine()) != null) {
-                LOGGER.info("Reading URL list of wso2 product: " + line);
-                try {
-                    HttpResponse activeScanResponse = zapClient.activeScan(productUri.toString() + line, "", "", "", "", "", "", false);
-                    String scanId = extractJsonValue(activeScanResponse, "scan");
-                    activeScanIds.add(scanId);
-                    LOGGER.info("Adding ScanIds of Active Scans to array: " + scanId);
-                    Thread.sleep(500);
+        LOGGER.info("Scan Id of active scan: " + activeScanId);
+        Thread.sleep(500);
 
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                    LOGGER.info(e.toString(), e);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            LOGGER.info(e.toString(), e);
-        }
+        HttpResponse activeScanStatusResponse = zapClient.activeScanStatus(activeScanId, false);
 
-        for (String scanId : activeScanIds) {
-            HttpResponse activeScanStatusResponse = zapClient.activeScanStatus(scanId, false);
-
-            while (Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status")) < 100) {
-                activeScanStatusResponse = zapClient.activeScanStatus(scanId, false);
-                Thread.sleep(1000);
-            }
+        while (Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status")) < 100) {
+            activeScanStatusResponse = zapClient.activeScanStatus(activeScanId, false);
+            Thread.sleep(1000);
         }
     }
 
