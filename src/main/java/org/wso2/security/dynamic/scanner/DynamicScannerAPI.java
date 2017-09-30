@@ -35,12 +35,13 @@ import java.io.*;
  */
 @Controller
 @EnableAutoConfiguration
+@RequestMapping("dynamicScanner")
 public class DynamicScannerAPI {
 
-    @RequestMapping(value = "configureAutomationManager", method = RequestMethod.GET)
+    @RequestMapping(value = "configureNotificationManager", method = RequestMethod.GET)
     @ResponseBody
-    public void configureAutomationManager(@RequestParam String host, @RequestParam int port, @RequestParam String myContainerId) throws IOException {
-        DynamicScannerService.configureAutomationManager(host, port, myContainerId);
+    public void configureNotificationManager(@RequestParam String automationManagerHost, @RequestParam int automationManagerPort, @RequestParam String myContainerId) throws IOException {
+        DynamicScannerService.configureNotificationManager(automationManagerHost, automationManagerPort, myContainerId);
     }
 
 

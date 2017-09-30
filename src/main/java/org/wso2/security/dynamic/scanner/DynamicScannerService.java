@@ -36,14 +36,13 @@ import java.util.TimerTask;
 
 public class DynamicScannerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicScannerService.class);
-    private static String automationManagerHost;
-    private static int automationManagerPort;
-    private static String myContainerId;
 
-    public static void configureAutomationManager(String host, int port, String myContainerId) {
-        automationManagerHost = host;
-        automationManagerPort = port;
-        DynamicScannerService.myContainerId = myContainerId;
+    private static NotificationManager notificationManager;
+
+    public static void configureNotificationManager(String automationManagerHost, int automationManagerPort, String myContainerId) {
+        notificationManager = new NotificationManager(myContainerId, automationManagerHost, automationManagerPort);
+        System.out.println(notificationManager.getAutomationManagerHost());
+        System.out.println(notificationManager.getAutomationManagerPort());
     }
 
     public static void uploadZipFileExtractAndStartServer(MultipartFile file, boolean replaceExisting) throws IOException {
@@ -60,8 +59,10 @@ public class DynamicScannerService {
                     public void run() {
                         if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
                             message = "Successfully started";
+                            notificationManager.notifyServerStarted(true);
                         } else {
                             message = "Failed to start the server";
+                            notificationManager.notifyServerStarted(false);
                         }
                         LOGGER.info("WSO2 server status: " + message);
                     }
@@ -88,8 +89,10 @@ public class DynamicScannerService {
             public void update(Observable o, Object arg) {
                 if (new File(Constants.REPORT_FILE_PATH).exists()) {
                     message = "ZAP scan successfully completed";
+                    notificationManager.notifyReportReady(true);
                 } else {
                     message = "scan failed";
+                    notificationManager.notifyReportReady(false);
                 }
                 LOGGER.info("Zap scan status: " + message);
             }
@@ -122,17 +125,5 @@ public class DynamicScannerService {
             LOGGER.error("Report is not found");
         }
         return null;
-    }
-
-    public static String getAutomationManagerHost() {
-        return automationManagerHost;
-    }
-
-    public static int getAutomationManagerPort() {
-        return automationManagerPort;
-    }
-
-    public static String getMyContainerId() {
-        return myContainerId;
     }
 }

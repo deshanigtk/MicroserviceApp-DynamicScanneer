@@ -24,10 +24,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -36,10 +39,10 @@ import java.util.List;
  * @author Deshani Geethika
  */
 public class HttpRequestHandler {
-    private static HttpClient httpClient = HttpClientBuilder.create().build();
+    private static CloseableHttpClient httpClient = HttpClients.createDefault();
     private static List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
 
-    public static HttpResponse sendGetRequest(String request) throws IOException {
+    public static HttpResponse sendGetRequest(URI request) throws IOException {
         HttpGet httpGetRequest = new HttpGet(request);
         return httpClient.execute(httpGetRequest);
     }

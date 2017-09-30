@@ -55,6 +55,7 @@ public class ZapScanner extends Observable implements Runnable {
     private ZapClient zapClient;
     private URI productUri;
     private boolean isAuthenticatedScan;
+    String activeScanId;
 
     private String keyUsername = "username";
     private String valueUserName = "admin";
@@ -104,7 +105,7 @@ public class ZapScanner extends Observable implements Runnable {
         HttpResponse createNewContextResponse = zapClient.createNewContext(contextName, false);
         contextId = extractJsonValue(createNewContextResponse, "contextId");
 
-        HttpResponse includeInContextResponse = zapClient.includeInContext(contextName, productUri.toString()+"*", false);
+        HttpResponse includeInContextResponse = zapClient.includeInContext(contextName, productUri.toString() + "*", false);
         LOGGER.info("Include in context response: " + HttpRequestHandler.printResponse(includeInContextResponse));
 
         //Create an empty session
@@ -225,8 +226,6 @@ public class ZapScanner extends Observable implements Runnable {
     }
 
     private void runActiveScan() throws IOException, InterruptedException, URISyntaxException {
-        String activeScanId;
-
         HttpResponse activeScanResponse = zapClient.activeScan("", "", "", "", "", "", contextId, false);
         activeScanId = extractJsonValue(activeScanResponse, "scan");
 
@@ -239,6 +238,20 @@ public class ZapScanner extends Observable implements Runnable {
             activeScanStatusResponse = zapClient.activeScanStatus(activeScanId, false);
             Thread.sleep(1000);
         }
+    }
+
+    private int getZapScanProgress() {
+        if (activeScanId != null) {
+            try {
+                HttpResponse activeScanStatusResponse = zapClient.activeScanStatus(activeScanId, false);
+                return Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status"));
+
+            } catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+                LOGGER.error(e.toString());
+            }
+        }
+        return -1;
     }
 
     private String extractJsonValue(HttpResponse httpResponse, String key) throws IOException {
