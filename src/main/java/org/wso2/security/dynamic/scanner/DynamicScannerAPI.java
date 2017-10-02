@@ -40,31 +40,31 @@ public class DynamicScannerAPI {
 
     @RequestMapping(value = "configureNotificationManager", method = RequestMethod.GET)
     @ResponseBody
-    public void configureNotificationManager(@RequestParam String automationManagerHost, @RequestParam int automationManagerPort, @RequestParam String myContainerId) throws IOException {
-        DynamicScannerService.configureNotificationManager(automationManagerHost, automationManagerPort, myContainerId);
+    public boolean configureNotificationManager(@RequestParam String automationManagerHost, @RequestParam int automationManagerPort, @RequestParam String myContainerId) throws IOException {
+        return DynamicScannerService.configureNotificationManager(automationManagerHost, automationManagerPort, myContainerId);
     }
 
 
     @RequestMapping(value = "uploadZipFileExtractAndStartServer", method = RequestMethod.POST)
     @ResponseBody
-    public void uploadZipFileExtractAndStartServer(@RequestParam MultipartFile file) throws IOException {
+    public String uploadZipFileExtractAndStartServer(@RequestParam MultipartFile file) throws IOException {
 
-        DynamicScannerService.uploadZipFileExtractAndStartServer(file);
+        return DynamicScannerService.uploadZipFileExtractAndStartServer(file);
     }
 
     @RequestMapping(value = "runZapScan", method = RequestMethod.GET)
     @ResponseBody
-    public void runZapScan(@RequestParam String zapHost,
-                           @RequestParam int zapPort,
-                           @RequestParam String contextName,
-                           @RequestParam String sessionName,
-                           @RequestParam String productHostRelativeToZap,
-                           @RequestParam String productHostRelativeToThis,
-                           @RequestParam int productPort,
-                           @RequestParam String urlListPath,
-                           @RequestParam boolean isAuthenticatedScan) throws Exception {
+    public String runZapScan(@RequestParam String zapHost,
+                             @RequestParam int zapPort,
+                             @RequestParam String contextName,
+                             @RequestParam String sessionName,
+                             @RequestParam String productHostRelativeToZap,
+                             @RequestParam String productHostRelativeToThis,
+                             @RequestParam int productPort,
+                             @RequestParam String urlListPath,
+                             @RequestParam boolean isAuthenticatedScan) throws Exception {
 
-        DynamicScannerService.runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis, productPort, urlListPath, isAuthenticatedScan);
+        return DynamicScannerService.runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis, productPort, urlListPath, isAuthenticatedScan);
     }
 
 

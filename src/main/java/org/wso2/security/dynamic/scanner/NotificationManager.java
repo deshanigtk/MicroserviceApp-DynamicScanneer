@@ -138,6 +138,10 @@ public class NotificationManager {
         }
     }
 
+    public static boolean isConfigured() {
+        return automationManagerHost != null && automationManagerPort != 0 && myContainerId != null;
+    }
+
     public static String getMyContainerId() {
         return myContainerId;
     }

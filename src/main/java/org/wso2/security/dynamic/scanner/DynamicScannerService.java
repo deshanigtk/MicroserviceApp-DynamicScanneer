@@ -35,73 +35,89 @@ import java.util.*;
 public class DynamicScannerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicScannerService.class);
 
-    public static void configureNotificationManager(String automationManagerHost, int automationManagerPort, String containerId) {
+    public static boolean configureNotificationManager(String automationManagerHost, int automationManagerPort, String containerId) {
         NotificationManager.setAutomationManagerHost(automationManagerHost);
         NotificationManager.setAutomationManagerPort(automationManagerPort);
         NotificationManager.setMyContainerId(containerId);
+        return NotificationManager.isConfigured();
     }
 
-    public static void uploadZipFileExtractAndStartServer(MultipartFile file) throws IOException {
-        Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(file, Constants.PRODUCT_PATH);
-        Observer wso2ServerObserver = new Observer() {
+    public static String uploadZipFileExtractAndStartServer(MultipartFile file) throws IOException {
+        if (NotificationManager.isConfigured()) {
+            Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(file, Constants.PRODUCT_PATH);
+            Observer wso2ServerObserver = new Observer() {
 
-            String message;
+                String message;
 
-            @Override
-            public void update(Observable o, Object arg) {
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
-                            message = "Successfully started";
-                            String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
-                            NotificationManager.notifyServerStarted(true, time);
-                        } else {
-                            message = "Failed to start the server";
+                @Override
+                public void update(Observable o, Object arg) {
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
+                                message = "Successfully started";
+                                String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
+                                NotificationManager.notifyServerStarted(true, time);
+                            } else {
+                                message = "Failed to start the server";
+                            }
+                            LOGGER.info("WSO2 server status: " + message);
                         }
-                        LOGGER.info("WSO2 server status: " + message);
-                    }
-                }, 120000);
-            }
-        };
-        wso2ServerHandler.addObserver(wso2ServerObserver);
-        new Thread(wso2ServerHandler).start();
+                    }, 120000);
+                }
+            };
+            wso2ServerHandler.addObserver(wso2ServerObserver);
+            new Thread(wso2ServerHandler).start();
+            return "Ok";
+        } else {
+            return "Please configure notification manager";
+        }
     }
 
 
-    public static void runZapScan(String zapHost, int zapPort, String contextName, String sessionName,
-                                  String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
-                                  String urlListPath, boolean isAuthenticatedScan) throws Exception {
+    public static String runZapScan(String zapHost, int zapPort, String contextName, String sessionName,
+                                    String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
+                                    String urlListPath, boolean isAuthenticatedScan) throws Exception {
+        if (NotificationManager.isConfigured()) {
 
 
-        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
-                productPort, urlListPath, isAuthenticatedScan);
+            ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
+                    productPort, urlListPath, isAuthenticatedScan);
 
-        Observer zapObserver = new Observer() {
-            String message;
+            Observer zapObserver = new Observer() {
+                String message;
 
-            @Override
-            public void update(Observable o, Object arg) {
-                if (new File(Constants.REPORT_FILE_PATH).exists()) {
-                    message = "ZAP scan successfully completed";
-                    String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
-                    NotificationManager.notifyReportReady(true, time);
-                } else {
-                    message = "scan failed";
+                @Override
+                public void update(Observable o, Object arg) {
+                    if (new File(Constants.REPORT_FILE_PATH).exists()) {
+                        message = "ZAP scan successfully completed";
+                        String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
+                        NotificationManager.notifyReportReady(true, time);
+                    } else {
+                        message = "scan failed";
+                    }
+                    LOGGER.info("Zap scan status: " + message);
                 }
-                LOGGER.info("Zap scan status: " + message);
-            }
-        };
-        zapScanner.addObserver(zapObserver);
-        if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
-            if (Wso2ServerHandler.hostAvailabilityCheck(zapHost, zapPort)) {
-                new Thread(zapScanner).start();
+            };
+            String message;
+            zapScanner.addObserver(zapObserver);
+            if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
+                if (Wso2ServerHandler.hostAvailabilityCheck(zapHost, zapPort)) {
+                    new Thread(zapScanner).start();
+                    return "Ok";
+                } else {
+                    message = "ZAP is not in running status";
+                    LOGGER.error(message);
+                    return message;
+                }
             } else {
-                LOGGER.error("ZAP is not in running status");
+                message = "Wso2 server is not in running status";
+                LOGGER.error(message);
+                return message;
             }
         } else {
-            LOGGER.error("Wso2 server is not in running status");
+            return "Please configure notification manager";
         }
     }
 
