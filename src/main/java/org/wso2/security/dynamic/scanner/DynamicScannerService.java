@@ -29,24 +29,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class DynamicScannerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicScannerService.class);
 
-    private static NotificationManager notificationManager;
-
-    public static void configureNotificationManager(String automationManagerHost, int automationManagerPort, String myContainerId) {
-        notificationManager = new NotificationManager(myContainerId, automationManagerHost, automationManagerPort);
-        System.out.println(notificationManager.getAutomationManagerHost());
-        System.out.println(notificationManager.getAutomationManagerPort());
+    public static void configureNotificationManager(String automationManagerHost, int automationManagerPort, String containerId) {
+        NotificationManager.setAutomationManagerHost(automationManagerHost);
+        NotificationManager.setAutomationManagerPort(automationManagerPort);
+        NotificationManager.setMyContainerId(containerId);
     }
 
-    public static void uploadZipFileExtractAndStartServer(MultipartFile file, boolean replaceExisting) throws IOException {
-        Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(file, Constants.PRODUCT_PATH, replaceExisting);
+    public static void uploadZipFileExtractAndStartServer(MultipartFile file) throws IOException {
+        Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(file, Constants.PRODUCT_PATH);
         Observer wso2ServerObserver = new Observer() {
 
             String message;
@@ -59,10 +55,10 @@ public class DynamicScannerService {
                     public void run() {
                         if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
                             message = "Successfully started";
-                            notificationManager.notifyServerStarted(true);
+                            String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
+                            NotificationManager.notifyServerStarted(true, time);
                         } else {
                             message = "Failed to start the server";
-                            notificationManager.notifyServerStarted(false);
                         }
                         LOGGER.info("WSO2 server status: " + message);
                     }
@@ -89,10 +85,10 @@ public class DynamicScannerService {
             public void update(Observable o, Object arg) {
                 if (new File(Constants.REPORT_FILE_PATH).exists()) {
                     message = "ZAP scan successfully completed";
-                    notificationManager.notifyReportReady(true);
+                    String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
+                    NotificationManager.notifyReportReady(true, time);
                 } else {
                     message = "scan failed";
-                    notificationManager.notifyReportReady(false);
                 }
                 LOGGER.info("Zap scan status: " + message);
             }

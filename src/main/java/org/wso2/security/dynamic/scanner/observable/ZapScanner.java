@@ -22,6 +22,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.security.dynamic.scanner.Constants;
+import org.wso2.security.dynamic.scanner.NotificationManager;
 import org.wso2.security.dynamic.scanner.clients.ZapClient;
 import org.wso2.security.dynamic.scanner.handlers.HttpRequestHandler;
 import org.wso2.security.dynamic.scanner.handlers.HttpsRequestHandler;
@@ -30,6 +32,7 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -55,7 +58,6 @@ public class ZapScanner extends Observable implements Runnable {
     private ZapClient zapClient;
     private URI productUri;
     private boolean isAuthenticatedScan;
-    String activeScanId;
 
     private String keyUsername = "username";
     private String valueUserName = "admin";
@@ -63,7 +65,6 @@ public class ZapScanner extends Observable implements Runnable {
     private String valuePassword = "admin";
     private String loginUrl = "/carbon/admin/login_action.jsp";
     private String logoutUrl = "/carbon/admin/logout_action.jsp";
-    private String reportFilePath = "/home/ZapScanReport.html";
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -105,7 +106,7 @@ public class ZapScanner extends Observable implements Runnable {
         HttpResponse createNewContextResponse = zapClient.createNewContext(contextName, false);
         contextId = extractJsonValue(createNewContextResponse, "contextId");
 
-        HttpResponse includeInContextResponse = zapClient.includeInContext(contextName, productUri.toString() + "*", false);
+        HttpResponse includeInContextResponse = zapClient.includeInContext(contextName, "\\Q"+productUri.toString() + "\\E.*", false);
         LOGGER.info("Include in context response: " + HttpRequestHandler.printResponse(includeInContextResponse));
 
         //Create an empty session
@@ -162,7 +163,7 @@ public class ZapScanner extends Observable implements Runnable {
         runActiveScan();
 
         HttpResponse generatedHtmlReport = zapClient.generateHtmlReport(false);
-        HttpRequestHandler.saveResponseToFile(generatedHtmlReport, new File(reportFilePath));
+        HttpRequestHandler.saveResponseToFile(generatedHtmlReport, new File(Constants.REPORT_FILE_PATH));
     }
 
     private void runSpider() throws IOException, InterruptedException, URISyntaxException {
@@ -206,7 +207,6 @@ public class ZapScanner extends Observable implements Runnable {
     }
 
     private void runAjaxSpider() throws IOException, InterruptedException, URISyntaxException {
-        URI productUri = (new URIBuilder()).setHost(productHostRelativeToZap).setPort(productPort).setScheme(HTTPS_SCHEME).build();
         try {
             HttpResponse ajaxSpiderResponse = zapClient.ajaxSpider(productUri.toString(), "", "", "", false);
             LOGGER.info("Starting Ajax spider: " + ajaxSpiderResponse);
@@ -227,32 +227,29 @@ public class ZapScanner extends Observable implements Runnable {
 
     private void runActiveScan() throws IOException, InterruptedException, URISyntaxException {
         HttpResponse activeScanResponse = zapClient.activeScan("", "", "", "", "", "", contextId, false);
-        activeScanId = extractJsonValue(activeScanResponse, "scan");
+        String activeScanId = extractJsonValue(activeScanResponse, "scan");
 
         LOGGER.info("Scan Id of active scan: " + activeScanId);
         Thread.sleep(500);
 
         HttpResponse activeScanStatusResponse = zapClient.activeScanStatus(activeScanId, false);
+        int progress = Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status"));
 
-        while (Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status")) < 100) {
+        while (progress < 100) {
             activeScanStatusResponse = zapClient.activeScanStatus(activeScanId, false);
-            Thread.sleep(1000);
+            progress = Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status"));
+
+            String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
+            NotificationManager.notifyZapScanStatus("running", progress, time);
+            Thread.sleep(1000 * 60);
+        }
+        if (progress == 100) {
+
+            String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
+            NotificationManager.notifyZapScanStatus("completed", progress, time);
         }
     }
 
-    private int getZapScanProgress() {
-        if (activeScanId != null) {
-            try {
-                HttpResponse activeScanStatusResponse = zapClient.activeScanStatus(activeScanId, false);
-                return Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status"));
-
-            } catch (IOException | URISyntaxException e) {
-                e.printStackTrace();
-                LOGGER.error(e.toString());
-            }
-        }
-        return -1;
-    }
 
     private String extractJsonValue(HttpResponse httpResponse, String key) throws IOException {
         String jsonString = HttpRequestHandler.printResponse(httpResponse);

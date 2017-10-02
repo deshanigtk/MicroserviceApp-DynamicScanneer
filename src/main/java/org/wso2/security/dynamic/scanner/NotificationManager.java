@@ -17,6 +17,8 @@ package org.wso2.security.dynamic.scanner;/*
 */
 
 import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.security.dynamic.scanner.handlers.HttpRequestHandler;
 
 import java.io.IOException;
@@ -25,67 +27,126 @@ import java.net.URISyntaxException;
 
 public class NotificationManager {
 
-    private final String NOTIFY = "/dynamicScanner/notify";
-    private final String SERVER_STARTED = NOTIFY + "/serverStarted";
-    private final String ZAP_SCAN_STATUS = NOTIFY + "/zapScanStatus";
-    private final String REPORT_READY = NOTIFY + "/reportReady";
+    private final static String NOTIFY = "/dynamicScanner/notify";
+    private final static String FILE_UPLOADED = NOTIFY + "/fileUploaded";
+    private final static String FILE_EXTRACTED = NOTIFY + "/fileExtracted";
+    private final static String SERVER_STARTED = NOTIFY + "/serverStarted";
+    private final static String ZAP_SCAN_STATUS = NOTIFY + "/zapScanStatus";
+    private final static String REPORT_READY = NOTIFY + "/reportReady";
 
-    private String myContainerId;
-    private String automationManagerHost;
-    private int automationManagerPort;
+    private static String myContainerId;
+    private static String automationManagerHost;
+    private static int automationManagerPort;
 
-    public NotificationManager(String myContainerId, String automationManagerHost, int automationManagerPort) {
-        this.myContainerId = myContainerId;
-        this.automationManagerHost = automationManagerHost;
-        this.automationManagerPort = automationManagerPort;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicScannerService.class);
+
+    public static void setMyContainerId(String myContainerId) {
+
+        NotificationManager.myContainerId = myContainerId;
+        System.out.println(automationManagerHost);
+        System.out.println(automationManagerPort);
+        System.out.println(myContainerId);
     }
 
-    public void notifyServerStarted(boolean status) {
+
+    public static void setAutomationManagerHost(String automationManagerHost) {
+        NotificationManager.automationManagerHost = automationManagerHost;
+    }
+
+    public static void setAutomationManagerPort(int automationManagerPort) {
+        NotificationManager.automationManagerPort = automationManagerPort;
+    }
+
+    public static void notifyFileUploaded(boolean status, String time) {
+        try {
+            System.out.println(automationManagerHost);
+            System.out.println(automationManagerPort);
+            URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(FILE_UPLOADED)
+                    .addParameter("containerId", myContainerId)
+                    .addParameter("status", String.valueOf(status))
+                    .addParameter("time", time)
+                    .build();
+
+            LOGGER.info("URI to notify file uploaded: " + uri);
+            HttpRequestHandler.sendGetRequest(uri);
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+            LOGGER.error(e.toString());
+        }
+    }
+
+    public static void notifyFileExtracted(boolean status, String time) {
+        try {
+            URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(FILE_EXTRACTED)
+                    .addParameter("containerId", myContainerId)
+                    .addParameter("status", String.valueOf(status))
+                    .addParameter("time", time)
+                    .build();
+
+            LOGGER.info("URI to notify file extracted: " + uri);
+            HttpRequestHandler.sendGetRequest(uri);
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+            LOGGER.error(e.toString());
+
+        }
+    }
+
+    public static void notifyServerStarted(boolean status, String time) {
         try {
             URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(SERVER_STARTED)
                     .addParameter("containerId", myContainerId)
                     .addParameter("status", String.valueOf(status))
+                    .addParameter("time", time)
                     .build();
             HttpRequestHandler.sendGetRequest(uri);
+            LOGGER.info("URI to notify server started: " + uri);
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
+            LOGGER.error(e.toString());
         }
     }
 
-    public void notifyZapScanStatus(String status, int progress) {
+    public static void notifyZapScanStatus(String status, int progress, String time) {
         try {
             URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(ZAP_SCAN_STATUS)
                     .addParameter("containerId", myContainerId)
                     .addParameter("status", String.valueOf(status))
                     .addParameter("progress", String.valueOf(progress))
+                    .addParameter("time", time)
                     .build();
+            LOGGER.info("URI to notify zap scan status: " + uri);
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
+            LOGGER.error(e.toString());
         }
     }
 
-    public void notifyReportReady(boolean status) {
+    public static void notifyReportReady(boolean status, String time) {
         try {
             URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(REPORT_READY)
                     .addParameter("containerId", myContainerId)
                     .addParameter("status", String.valueOf(status))
+                    .addParameter("time", time)
                     .build();
+            LOGGER.info("URI to notify report is ready: " + uri);
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
+            LOGGER.error(e.toString());
         }
     }
 
-    public String getMyContainerId() {
+    public static String getMyContainerId() {
         return myContainerId;
     }
 
-    public String getAutomationManagerHost() {
+    public static String getAutomationManagerHost() {
         return automationManagerHost;
     }
 
-    public int getAutomationManagerPort() {
+    public static int getAutomationManagerPort() {
         return automationManagerPort;
     }
 }

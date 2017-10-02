@@ -17,15 +17,19 @@ package org.wso2.security.dynamic.scanner.observable;
 * under the License.
 */
 
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
-import org.wso2.security.dynamic.scanner.handlers.FileHandler;
+import org.wso2.security.dynamic.scanner.NotificationManager;
 
 import java.io.*;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.Observable;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Methods to extract a zip file of wso2 product, run wso2server.sh, check a host is available
@@ -38,14 +42,12 @@ public class Wso2ServerHandler extends Observable implements Runnable {
     private String wso2serverFileAbsolutePath;
     private MultipartFile file;
     private String productPath;
-    private boolean replaceExisting;
     private final static Logger LOGGER = LoggerFactory.getLogger(Wso2ServerHandler.class);
 
 
-    public Wso2ServerHandler(MultipartFile file, String productPath, boolean replaceExisting) {
+    public Wso2ServerHandler(MultipartFile file, String productPath) {
         this.file = file;
         this.productPath = productPath;
-        this.replaceExisting = replaceExisting;
     }
 
     @Override
@@ -61,15 +63,16 @@ public class Wso2ServerHandler extends Observable implements Runnable {
     }
 
     private void uploadZipFileExtractAndStartServer() throws IOException, InterruptedException {
-        boolean isProductPathCreated;
-        if (new File(productPath).exists() && replaceExisting) {
-            FileUtils.deleteDirectory(new File(productPath));
-        }
-        isProductPathCreated = new File(productPath).exists() || new File(productPath).mkdir();
+        boolean isProductPathCreated = new File(productPath).exists() || new File(productPath).mkdir();
         if (isProductPathCreated) {
             String fileName = uploadFile(file);
             if (fileName != null) {
-                String folderName = FileHandler.extractFolder(productPath + File.separator + fileName);
+                String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
+                NotificationManager.notifyFileUploaded(true, time);
+
+                String folderName = extractFolder(productPath + File.separator + fileName);
+                time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
+                NotificationManager.notifyFileExtracted(true, time);
 
                 findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
 
@@ -100,24 +103,6 @@ public class Wso2ServerHandler extends Observable implements Runnable {
 
     private void runShellScript(String[] command) throws IOException {
         Runtime.getRuntime().exec(command);
-
-//        BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-//        BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-//
-//        // read the output from the command
-//        LOGGER.info("Here is the standard output of the command");
-//        String s;
-//
-//        while ((s = stdInput.readLine()) != null) {
-//            LOGGER.info(s);
-//        }
-//        // read any errors from the attempted command
-//        LOGGER.info("Here is the standard error of the command (if any)");
-//        while ((s = stdError.readLine()) != null) {
-//            LOGGER.error(s);
-//        }
-//        stdInput.close();
-//        stdError.close();
     }
 
     public static boolean hostAvailabilityCheck(String host, int port) {
@@ -155,5 +140,57 @@ public class Wso2ServerHandler extends Observable implements Runnable {
             LOGGER.error("No file");
         }
         return null;
+    }
+
+    private String extractFolder(String zipFile) throws IOException {
+        int BUFFER = 2048;
+        File file = new File(zipFile);
+
+        ZipFile zip = new ZipFile(file);
+        String newPath = file.getParent();
+
+        String fileName = file.getName();
+
+        Enumeration zipFileEntries = zip.entries();
+
+        // Process each entry
+        while (zipFileEntries.hasMoreElements()) {
+            // grab a zip file entry
+            ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
+            String currentEntry = entry.getName();
+            File destFile = new File(newPath, currentEntry);
+
+            File destinationParent = destFile.getParentFile();
+            // create the parent directory structure if needed
+            destinationParent.mkdirs();
+
+            if (!entry.isDirectory()) {
+                BufferedInputStream is = new BufferedInputStream(zip
+                        .getInputStream(entry));
+                int currentByte;
+                // establish buffer for writing file
+                byte data[] = new byte[BUFFER];
+
+                // write the current file to disk
+                FileOutputStream fos = new FileOutputStream(destFile);
+                BufferedOutputStream dest = new BufferedOutputStream(fos,
+                        BUFFER);
+
+                // read and write until last byte is encountered
+                while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
+                    dest.write(data, 0, currentByte);
+                }
+                dest.flush();
+                dest.close();
+                is.close();
+            }
+
+            if (currentEntry.endsWith(".zip")) {
+                // found a zip file, try to open
+                extractFolder(destFile.getAbsolutePath());
+            }
+        }
+
+        return fileName.substring(0, fileName.length() - 4);
     }
 }

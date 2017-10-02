@@ -19,5 +19,5 @@ package org.wso2.security.dynamic.scanner;/*
 public class Constants {
 
     public final static String REPORT_FILE_PATH = "/home/ZapScanReport.html";
-    public final static String PRODUCT_PATH = "/home/deshani/Documents/Product";
+    public final static String PRODUCT_PATH = "/home/Product";
 }

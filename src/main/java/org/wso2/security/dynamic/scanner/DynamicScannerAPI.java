@@ -47,10 +47,9 @@ public class DynamicScannerAPI {
 
     @RequestMapping(value = "uploadZipFileExtractAndStartServer", method = RequestMethod.POST)
     @ResponseBody
-    public void uploadZipFileExtractAndStartServer(@RequestParam MultipartFile file,
-                                                   @RequestParam boolean replaceExisting) throws IOException {
+    public void uploadZipFileExtractAndStartServer(@RequestParam MultipartFile file) throws IOException {
 
-        DynamicScannerService.uploadZipFileExtractAndStartServer(file, replaceExisting);
+        DynamicScannerService.uploadZipFileExtractAndStartServer(file);
     }
 
     @RequestMapping(value = "runZapScan", method = RequestMethod.GET)
