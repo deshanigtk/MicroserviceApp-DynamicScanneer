@@ -19,6 +19,7 @@ package org.wso2.security.dynamic.scanner.observable;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.execchain.RequestAbortedException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class ZapScanner extends Observable implements Runnable {
     private String loginUrl = "/carbon/admin/login_action.jsp";
     private String logoutUrl = "/carbon/admin/logout_action.jsp";
 
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private final static Logger LOGGER = LoggerFactory.getLogger(ZapScanner.class);
 
     @Override
     public void run() {
@@ -100,7 +101,7 @@ public class ZapScanner extends Observable implements Runnable {
     }
 
     private void startScan() throws Exception {
-        LOGGER.info("Starting ZAP scanning process ");
+        LOGGER.info("Starting ZAP scanning process...");
 
         //Create new context
         HttpResponse createNewContextResponse = zapClient.createNewContext(contextName, false);
@@ -256,5 +257,30 @@ public class ZapScanner extends Observable implements Runnable {
         JSONObject jsonObject = new JSONObject(jsonString);
         return jsonObject.getString(key);
     }
+
+//    public static void main(String[] args) throws IOException {
+//
+//        String loginUrl = "/carbon/admin/login_action.jsp";
+//        Map<String, String> props = new HashMap<>();
+//        props.put("Content-Type", "text/x-www-form-urlencoded");
+//
+//        URI loginUri = null;
+//        try {
+//            loginUri = (new URIBuilder()).setHost("localhost").setPort(9443).setScheme("https").setPath(loginUrl).build();
+//        } catch (URISyntaxException e) {
+//            e.printStackTrace();
+//        }
+//
+//        Map<String, Object> loginCredentials = new HashMap<>();
+//        loginCredentials.put("username", "admin");
+//        loginCredentials.put("password", "admin");
+//
+//        LOGGER.info("URI to login to wso2server: " + loginUri.toString());
+//         HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, "POST");
+////        System.out.println(HttpsRequestHandler.printResponse(httpsURLConnection));
+//
+////        List<String> setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
+//
+//    }
 
 }

@@ -79,7 +79,7 @@ public class ZapClient {
                 .addParameter("overwrite", overwrite ? "true" : "false")
                 .build();
 
-        LOGGER.info("URI to run SaveSession: " + uri);
+        LOGGER.info("Sending request to save session");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -92,7 +92,7 @@ public class ZapClient {
                 .addParameter("session", session)
                 .build();
 
-        LOGGER.info("URI to run RemoveSession: " + uri);
+        LOGGER.info("Sending request to remove session");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -105,7 +105,7 @@ public class ZapClient {
                 .addParameter("session", session)
                 .build();
 
-        LOGGER.info("URI to run CreateEmptySession: " + uri);
+        LOGGER.info("Sending request to create empty session");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -120,7 +120,7 @@ public class ZapClient {
                 .addParameter("tokenValue", tokenValue)
                 .build();
 
-        LOGGER.info("URI to run SetSessionTokenValue: " + uri);
+        LOGGER.info("Sending request to set session token value");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -132,7 +132,7 @@ public class ZapClient {
                 .addParameter("regex", regex)
                 .build();
 
-        LOGGER.info("URI to ExcludeFromSpider: " + uri);
+        LOGGER.info("Sending request to exclude URL from spider");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -144,7 +144,7 @@ public class ZapClient {
                 .addParameter("contextName", contextName)
                 .build();
 
-        LOGGER.info("URI to CreateNewContext: " + uri);
+        LOGGER.info("Sending request to create new context");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -157,7 +157,7 @@ public class ZapClient {
                 .addParameter("regex", regex)
                 .build();
 
-        LOGGER.info("URI to run IncludeInContext: " + uri);
+        LOGGER.info("Sending request to include in context");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -173,7 +173,7 @@ public class ZapClient {
                 .addParameter("subtreeOnly", subtreeOnly)
                 .build();
 
-        LOGGER.info("URI to run Spider" + uri);
+        LOGGER.info("Sending request to run spider");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -184,7 +184,7 @@ public class ZapClient {
                 .addParameter("scanId", scanId)
                 .build();
 
-        LOGGER.info("URI to run SpiderStatus: " + uri);
+        LOGGER.info("Sending request to check spider status");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -199,7 +199,7 @@ public class ZapClient {
                 .addParameter("subtreeOnly", subtreeOnly)
                 .build();
 
-        LOGGER.info("URI to run AjaxSpider: " + uri);
+        LOGGER.info("Sending request to run ajax spider");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -209,7 +209,7 @@ public class ZapClient {
                 .addParameter("formMethod", post ? POST : GET)
                 .build();
 
-        LOGGER.info("URI to check Ajax Spider Status: " + uri);
+        LOGGER.info("Sending request to check ajax spider status");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -228,7 +228,7 @@ public class ZapClient {
                 .addParameter("contextId", contextId)
                 .build();
 
-        LOGGER.info("URI to run ActiveScan: " + uri);
+        LOGGER.info("Sending request to run active scan");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -239,7 +239,7 @@ public class ZapClient {
                 .addParameter("scanId", scanId)
                 .build();
 
-        LOGGER.info("URI to check ActiveScanStatus: " + uri);
+        LOGGER.info("Sending request to check active scan status");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 
@@ -249,7 +249,7 @@ public class ZapClient {
                 .addParameter("formMethod", post ? POST : GET)
                 .build();
 
-        LOGGER.info("URI to generate HTML report: " + uri);
+        LOGGER.info("Sending request to generate html report");
         return httpClient.execute(post ? new HttpPost(uri) : new HttpGet(uri));
     }
 }

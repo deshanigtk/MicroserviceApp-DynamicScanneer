@@ -81,7 +81,6 @@ public class DynamicScannerService {
                                     String urlListPath, boolean isAuthenticatedScan) throws Exception {
         if (NotificationManager.isConfigured()) {
 
-
             ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
                     productPort, urlListPath, isAuthenticatedScan);
 

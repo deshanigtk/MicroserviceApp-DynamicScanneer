@@ -38,14 +38,10 @@ public class NotificationManager {
     private static String automationManagerHost;
     private static int automationManagerPort;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicScannerService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationManager.class);
 
     public static void setMyContainerId(String myContainerId) {
-
         NotificationManager.myContainerId = myContainerId;
-        System.out.println(automationManagerHost);
-        System.out.println(automationManagerPort);
-        System.out.println(myContainerId);
     }
 
 
@@ -59,8 +55,6 @@ public class NotificationManager {
 
     public static void notifyFileUploaded(boolean status, String time) {
         try {
-            System.out.println(automationManagerHost);
-            System.out.println(automationManagerPort);
             URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(FILE_UPLOADED)
                     .addParameter("containerId", myContainerId)
                     .addParameter("status", String.valueOf(status))
