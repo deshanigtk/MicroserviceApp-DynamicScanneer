@@ -34,6 +34,8 @@ import java.util.*;
 
 public class DynamicScannerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicScannerService.class);
+    private static boolean isServerStarted;
+
 
     public static boolean configureNotificationManager(String automationManagerHost, int automationManagerPort, String containerId) {
         NotificationManager.setAutomationManagerHost(automationManagerHost);
@@ -42,47 +44,38 @@ public class DynamicScannerService {
         return NotificationManager.isConfigured();
     }
 
-    public static String uploadZipFileExtractAndStartServer(MultipartFile file) throws IOException {
+    public static boolean uploadZipFileExtractAndStartServer(MultipartFile file) {
         if (NotificationManager.isConfigured()) {
-            Wso2ServerHandler wso2ServerHandler = new Wso2ServerHandler(file, Constants.PRODUCT_PATH);
-            Observer wso2ServerObserver = new Observer() {
+            Wso2ServerHandler.uploadZipFileExtractAndStartServer(file);
 
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
                 String message;
 
                 @Override
-                public void update(Observable o, Object arg) {
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
-                                message = "Successfully started";
-                                String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
-                                NotificationManager.notifyServerStarted(true, time);
-                            } else {
-                                message = "Failed to start the server";
-                            }
-                            LOGGER.info("WSO2 server status: " + message);
-                        }
-                    }, 120000);
+                public void run() {
+                    if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
+                        message = "Successfully started";
+                        isServerStarted = true;
+                        NotificationManager.notifyServerStarted(true, new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date()));
+                    } else {
+                        message = "Failed to start the server";
+                    }
+                    LOGGER.info("WSO2 server status: " + message);
                 }
-            };
-            wso2ServerHandler.addObserver(wso2ServerObserver);
-            new Thread(wso2ServerHandler).start();
-            return "Ok";
-        } else {
-            return "Please configure notification manager";
+            }, 120000);
         }
+        return isServerStarted;
     }
 
 
     public static String runZapScan(String zapHost, int zapPort, String contextName, String sessionName,
                                     String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
-                                    String urlListPath, boolean isAuthenticatedScan) throws Exception {
+                                    boolean isAuthenticatedScan) {
         if (NotificationManager.isConfigured()) {
 
             ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
-                    productPort, urlListPath, isAuthenticatedScan);
+                    productPort, isAuthenticatedScan);
 
             Observer zapObserver = new Observer() {
                 String message;
@@ -99,7 +92,7 @@ public class DynamicScannerService {
                     LOGGER.info("Zap scan status: " + message);
                 }
             };
-            String message;
+            final String message;
             zapScanner.addObserver(zapObserver);
             if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
                 if (Wso2ServerHandler.hostAvailabilityCheck(zapHost, zapPort)) {
@@ -136,5 +129,31 @@ public class DynamicScannerService {
             LOGGER.error("Report is not found");
         }
         return null;
+    }
+
+    public static void doWholeProcess(String automationManagerHost, int automationManagerPort, String containerId, boolean isFileUpload,
+                                      MultipartFile zipFile, MultipartFile urlListFile, String zapHost, int zapPort, String contextName,
+                                      String sessionName, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
+                                      boolean isAuthenticatedScan, boolean isUnauthenticatedScan) {
+        if (configureNotificationManager(automationManagerHost, automationManagerPort, containerId)) {
+            if (Wso2ServerHandler.uploadFile(urlListFile, Constants.URL_LIST_PATH)) {
+                if ((isFileUpload && zipFile != null && uploadZipFileExtractAndStartServer(zipFile)) ||
+                        (!isFileUpload && Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort))) {
+
+                    if (isAuthenticatedScan) {
+                        runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
+                                productPort, true);
+                    }
+                    if (isUnauthenticatedScan) {
+                        runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
+                                productPort, false);
+                    }
+                } else {
+                    LOGGER.error("WSO2 server not found");
+                }
+            } else {
+                LOGGER.error("URL file not found");
+            }
+        }
     }
 }

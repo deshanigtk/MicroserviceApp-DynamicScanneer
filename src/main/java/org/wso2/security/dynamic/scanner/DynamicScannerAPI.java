@@ -47,24 +47,24 @@ public class DynamicScannerAPI {
 
     @RequestMapping(value = "uploadZipFileExtractAndStartServer", method = RequestMethod.POST)
     @ResponseBody
-    public String uploadZipFileExtractAndStartServer(@RequestParam MultipartFile file) throws IOException {
+    public boolean uploadZipFileExtractAndStartServer(@RequestParam MultipartFile file) throws IOException {
 
         return DynamicScannerService.uploadZipFileExtractAndStartServer(file);
     }
 
     @RequestMapping(value = "runZapScan", method = RequestMethod.GET)
     @ResponseBody
-    public String runZapScan(@RequestParam String zapHost,
-                             @RequestParam int zapPort,
-                             @RequestParam String contextName,
-                             @RequestParam String sessionName,
-                             @RequestParam String productHostRelativeToZap,
-                             @RequestParam String productHostRelativeToThis,
-                             @RequestParam int productPort,
-                             @RequestParam String urlListPath,
-                             @RequestParam boolean isAuthenticatedScan) throws Exception {
+    public void runZapScan(@RequestParam String zapHost,
+                           @RequestParam int zapPort,
+                           @RequestParam String contextName,
+                           @RequestParam String sessionName,
+                           @RequestParam String productHostRelativeToZap,
+                           @RequestParam String productHostRelativeToThis,
+                           @RequestParam int productPort,
+                           @RequestParam String urlListPath,
+                           @RequestParam boolean isAuthenticatedScan) throws Exception {
 
-        return DynamicScannerService.runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis, productPort, urlListPath, isAuthenticatedScan);
+//        return DynamicScannerService.runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis, productPort, urlListPath, isAuthenticatedScan);
     }
 
 
@@ -73,5 +73,25 @@ public class DynamicScannerAPI {
     public HttpResponse getReport(HttpServletResponse response) {
         return DynamicScannerService.getReport(response);
     }
+
+    @RequestMapping(value = "test", method = RequestMethod.POST)
+    @ResponseBody
+    public void test(@RequestParam String automationManagerHost, @RequestParam int automationManagerPort,
+                     @RequestParam String containerId, @RequestParam boolean isFileUpload,
+                     @RequestParam(required = false) MultipartFile zipFile, @RequestParam MultipartFile urlListFile,
+                     @RequestParam String zapHost,
+                     @RequestParam int zapPort,
+                     @RequestParam String contextName,
+                     @RequestParam String sessionName,
+                     @RequestParam String productHostRelativeToZap,
+                     @RequestParam String productHostRelativeToThis,
+                     @RequestParam int productPort,
+                     @RequestParam boolean isAuthenticatedScan,
+                     @RequestParam boolean isUnauthenticatedScan) {
+
+        DynamicScannerService.doWholeProcess(automationManagerHost, automationManagerPort, containerId, isFileUpload, zipFile, urlListFile, zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis, productPort, isAuthenticatedScan, isUnauthenticatedScan);
+//        return DynamicScannerService.runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis, productPort, urlListPath, isAuthenticatedScan);
+    }
+
 
 }

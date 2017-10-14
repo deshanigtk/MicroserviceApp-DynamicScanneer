@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.security.dynamic.scanner.handlers.HttpRequestHandler;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -63,7 +62,7 @@ public class NotificationManager {
 
             LOGGER.info("URI to notify file uploaded: " + uri);
             HttpRequestHandler.sendGetRequest(uri);
-        } catch (URISyntaxException | IOException e) {
+        } catch (URISyntaxException e) {
             e.printStackTrace();
             LOGGER.error(e.toString());
         }
@@ -79,7 +78,7 @@ public class NotificationManager {
 
             LOGGER.info("URI to notify file extracted: " + uri);
             HttpRequestHandler.sendGetRequest(uri);
-        } catch (URISyntaxException | IOException e) {
+        } catch (URISyntaxException e) {
             e.printStackTrace();
             LOGGER.error(e.toString());
 
@@ -95,7 +94,7 @@ public class NotificationManager {
                     .build();
             HttpRequestHandler.sendGetRequest(uri);
             LOGGER.info("URI to notify server started: " + uri);
-        } catch (URISyntaxException | IOException e) {
+        } catch (URISyntaxException e) {
             e.printStackTrace();
             LOGGER.error(e.toString());
         }
@@ -111,7 +110,7 @@ public class NotificationManager {
                     .build();
             LOGGER.info("URI to notify zap scan status: " + uri);
             HttpRequestHandler.sendGetRequest(uri);
-        } catch (URISyntaxException | IOException e) {
+        } catch (URISyntaxException e) {
             e.printStackTrace();
             LOGGER.error(e.toString());
         }
@@ -126,7 +125,7 @@ public class NotificationManager {
                     .build();
             LOGGER.info("URI to notify report is ready: " + uri);
             HttpRequestHandler.sendGetRequest(uri);
-        } catch (URISyntaxException | IOException e) {
+        } catch (URISyntaxException e) {
             e.printStackTrace();
             LOGGER.error(e.toString());
         }
