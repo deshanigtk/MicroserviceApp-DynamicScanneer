@@ -3,11 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c33856bf-9d70-46dd-a893-5d2da523b7a6" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/Constants.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/Constants.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/DynamicScannerAPI.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/DynamicScannerAPI.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/DynamicScannerService.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/DynamicScannerService.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observable/Wso2ServerHandler.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observable/Wso2ServerHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observable/ZapScanner.java" afterPath="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observable/ZapScanner.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/org/wso2/security/dynamic/scanner/localhost.crt" afterPath="$PROJECT_DIR$/src/main/resources/org/wso2/security/dynamic/scanner/localhost.crt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" />
     </list>
@@ -91,8 +87,8 @@
       <file leaf-file-name="Wso2ServerHandler.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observable/Wso2ServerHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-976">
-              <caret line="56" column="0" lean-forward="false" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
+            <state relative-caret-position="140">
+              <caret line="112" column="30" lean-forward="false" selection-start-line="112" selection-start-column="30" selection-end-line="112" selection-end-column="30" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -199,11 +195,11 @@
         <option value="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/HttpsRequestHandler.java" />
         <option value="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/handlers/HttpRequestHandler.java" />
         <option value="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/NotificationManager.java" />
-        <option value="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observable/Wso2ServerHandler.java" />
         <option value="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/DynamicScannerAPI.java" />
         <option value="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/DynamicScannerService.java" />
         <option value="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observable/ZapScanner.java" />
         <option value="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/Constants.java" />
+        <option value="$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observable/Wso2ServerHandler.java" />
       </list>
     </option>
   </component>
@@ -672,7 +668,7 @@
       <workItem from="1507979609109" duration="17472000" />
       <workItem from="1508031434702" duration="8872000" />
       <workItem from="1508135373739" duration="2585000" />
-      <workItem from="1508143459177" duration="1233000" />
+      <workItem from="1508143459177" duration="1280000" />
     </task>
     <task id="LOCAL-00001" summary="scans are seperated into methods, create constants class">
       <created>1504165786894</created>
@@ -863,11 +859,18 @@
       <option name="project" value="LOCAL" />
       <updated>1507992362847</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="fix issue in active scan">
+      <created>1508147303925</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1508147303925</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="430329000" />
+    <option name="totallyTimeSpent" value="430376000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -920,7 +923,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="scans are seperated into methods, create constants class" />
     <MESSAGE value="add method to run script" />
     <MESSAGE value="add method to extract folder" />
     <MESSAGE value="add zap Client and clean code" />
@@ -945,7 +947,8 @@
     <MESSAGE value="added mandatory to config notification manager" />
     <MESSAGE value="tried to send request in post data. not works" />
     <MESSAGE value="removed asynchronous requests for file upload and implement method to run the whole process" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed asynchronous requests for file upload and implement method to run the whole process" />
+    <MESSAGE value="fix issue in active scan" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix issue in active scan" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1102,6 +1105,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1026">
           <caret line="70" column="0" lean-forward="false" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1194,8 +1200,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/wso2/security/dynamic/scanner/observable/Wso2ServerHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-976">
-          <caret line="56" column="0" lean-forward="false" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
+        <state relative-caret-position="140">
+          <caret line="112" column="30" lean-forward="false" selection-start-line="112" selection-start-column="30" selection-end-line="112" selection-end-column="30" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

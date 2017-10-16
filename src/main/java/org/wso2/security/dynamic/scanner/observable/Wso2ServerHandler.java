@@ -111,7 +111,6 @@ public class Wso2ServerHandler {
 
     public static boolean uploadFile(MultipartFile file, String fileUploadPath) {
         if (!file.isEmpty()) {
-            String fileName = file.getOriginalFilename();
             try {
                 byte[] bytes = file.getBytes();
                 BufferedOutputStream stream =
