@@ -46,72 +46,56 @@ public class DynamicScannerService {
 
     public static boolean uploadZipFileExtractAndStartServer(MultipartFile file) {
         if (NotificationManager.isConfigured()) {
-            Wso2ServerHandler.uploadZipFileExtractAndStartServer(file);
+            if (Wso2ServerHandler.uploadZipFileExtractAndStartServer(file)) {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    String message;
 
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                String message;
-
-                @Override
-                public void run() {
-                    if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
-                        message = "Successfully started";
-                        isServerStarted = true;
-                        NotificationManager.notifyServerStarted(true, new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date()));
-                    } else {
-                        message = "Failed to start the server";
+                    @Override
+                    public void run() {
+                        if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
+                            message = "Successfully started";
+                            isServerStarted = true;
+                            NotificationManager.notifyServerStarted(true, new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date()));
+                        } else {
+                            message = "Failed to start the server";
+                        }
+                        LOGGER.info("WSO2 server status: " + message);
                     }
-                    LOGGER.info("WSO2 server status: " + message);
-                }
-            }, 120000);
+                }, 110000);
+                return true;
+            }
         }
-        return isServerStarted;
+        return false;
     }
 
 
     public static String runZapScan(String zapHost, int zapPort, String contextName, String sessionName,
                                     String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
                                     boolean isAuthenticatedScan) {
-        if (NotificationManager.isConfigured()) {
+        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
+                productPort, isAuthenticatedScan);
 
-            ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
-                    productPort, isAuthenticatedScan);
+        Observer zapObserver = new Observer() {
+            String message;
 
-            Observer zapObserver = new Observer() {
-                String message;
-
-                @Override
-                public void update(Observable o, Object arg) {
-                    if (new File(Constants.REPORT_FILE_PATH).exists()) {
-                        message = "ZAP scan successfully completed";
-                        String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
-                        NotificationManager.notifyReportReady(true, time);
-                    } else {
-                        message = "scan failed";
-                    }
-                    LOGGER.info("Zap scan status: " + message);
-                }
-            };
-            final String message;
-            zapScanner.addObserver(zapObserver);
-            if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
-                if (Wso2ServerHandler.hostAvailabilityCheck(zapHost, zapPort)) {
-                    new Thread(zapScanner).start();
-                    return "Ok";
+            @Override
+            public void update(Observable o, Object arg) {
+                if (new File(Constants.REPORT_FILE_PATH).exists()) {
+                    message = "ZAP scan successfully completed";
+                    String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
+                    NotificationManager.notifyReportReady(true, time);
                 } else {
-                    message = "ZAP is not in running status";
-                    LOGGER.error(message);
-                    return message;
+                    message = "scan failed";
                 }
-            } else {
-                message = "Wso2 server is not in running status";
-                LOGGER.error(message);
-                return message;
+                LOGGER.info("Zap scan status: " + message);
             }
-        } else {
-            return "Please configure notification manager";
-        }
+        };
+        zapScanner.addObserver(zapObserver);
+        new Thread(zapScanner).start();
+        return "Ok";
     }
+
 
     public static HttpResponse getReport(HttpServletResponse response) {
         if (new File(Constants.REPORT_FILE_PATH).exists()) {
@@ -131,29 +115,51 @@ public class DynamicScannerService {
         return null;
     }
 
-    public static void doWholeProcess(String automationManagerHost, int automationManagerPort, String containerId, boolean isFileUpload,
-                                      MultipartFile zipFile, MultipartFile urlListFile, String zapHost, int zapPort, String contextName,
-                                      String sessionName, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
-                                      boolean isAuthenticatedScan, boolean isUnauthenticatedScan) {
-        if (configureNotificationManager(automationManagerHost, automationManagerPort, containerId)) {
-            if (Wso2ServerHandler.uploadFile(urlListFile, Constants.URL_LIST_PATH)) {
-                if ((isFileUpload && zipFile != null && uploadZipFileExtractAndStartServer(zipFile)) ||
-                        (!isFileUpload && Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort))) {
+    public static String doWholeProcess(String automationManagerHost, int automationManagerPort, String containerId, boolean isFileUpload,
+                                        MultipartFile zipFile, MultipartFile urlListFile, String zapHost, int zapPort, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
+                                        boolean isAuthenticatedScan, boolean isUnauthenticatedScan) {
+        try {
+            if (configureNotificationManager(automationManagerHost, automationManagerPort, containerId)) {
+                if (Wso2ServerHandler.uploadFile(urlListFile, Constants.URL_LIST_PATH)) {
+                    if ((isFileUpload && zipFile != null && uploadZipFileExtractAndStartServer(zipFile)) ||
+                            (!isFileUpload && Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort))) {
 
-                    if (isAuthenticatedScan) {
-                        runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
-                                productPort, true);
-                    }
-                    if (isUnauthenticatedScan) {
-                        runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
-                                productPort, false);
+                        if (isFileUpload) {
+                            Thread.sleep(120000);
+                            if (!isServerStarted) {
+                                return "WSO2 server not started";
+                            }
+                        }
+                        if (Wso2ServerHandler.hostAvailabilityCheck(zapHost, zapPort)) {
+                            if (isUnauthenticatedScan) {
+                                String contextName = "Unauthenticated context";
+                                String sessionName = "Unauthenticated session";
+                                runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
+                                        productPort, false);
+                            }
+
+                            if (isAuthenticatedScan) {
+                                String contextName = "Authenticated context";
+                                String sessionName = "Authenticated session";
+                                runZapScan(zapHost, zapPort, contextName, sessionName, productHostRelativeToZap, productHostRelativeToThis,
+                                        productPort, true);
+                            }
+                            return "Ok";
+                        } else {
+                            return "ZAP is not in running status";
+                        }
+                    } else {
+                        return "WSO2 server not found";
                     }
                 } else {
-                    LOGGER.error("WSO2 server not found");
+                    return "URL file not found";
                 }
             } else {
-                LOGGER.error("URL file not found");
+                return "Notification Manager not configured";
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return e.toString();
         }
     }
 }

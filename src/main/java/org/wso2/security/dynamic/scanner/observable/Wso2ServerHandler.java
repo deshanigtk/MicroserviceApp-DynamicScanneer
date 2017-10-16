@@ -43,10 +43,11 @@ public class Wso2ServerHandler {
     private static String productPath = Constants.PRODUCT_PATH;
     private final static Logger LOGGER = LoggerFactory.getLogger(Wso2ServerHandler.class);
 
-    public static void uploadZipFileExtractAndStartServer(MultipartFile zipFile) {
+    public static boolean uploadZipFileExtractAndStartServer(MultipartFile zipFile) {
         try {
             if (new File(productPath).exists() || new File(productPath).mkdir()) {
-                if (uploadFile(zipFile, productPath)) {
+                String fileUploadPath = productPath + File.separator + zipFile.getOriginalFilename();
+                if (uploadFile(zipFile, fileUploadPath)) {
                     String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
                     NotificationManager.notifyFileUploaded(true, time);
 
@@ -60,6 +61,7 @@ public class Wso2ServerHandler {
                         Runtime.getRuntime().exec(new String[]{"chmod", "+x", wso2serverFileAbsolutePath});
                         Thread.sleep(500);
                         runShellScript(new String[]{wso2serverFileAbsolutePath});
+                        return true;
                     }
                 }
             } else {
@@ -69,6 +71,7 @@ public class Wso2ServerHandler {
             e.printStackTrace();
             LOGGER.error(e.toString());
         }
+        return false;
     }
 
     private static void findFile(File parentDirectory, String fileToFind) {
@@ -106,13 +109,13 @@ public class Wso2ServerHandler {
         }
     }
 
-    public static boolean uploadFile(MultipartFile file, String filePath) {
+    public static boolean uploadFile(MultipartFile file, String fileUploadPath) {
         if (!file.isEmpty()) {
             String fileName = file.getOriginalFilename();
             try {
                 byte[] bytes = file.getBytes();
                 BufferedOutputStream stream =
-                        new BufferedOutputStream(new FileOutputStream(new File(filePath + File.separator + fileName)));
+                        new BufferedOutputStream(new FileOutputStream(new File(fileUploadPath)));
                 stream.write(bytes);
                 stream.close();
                 LOGGER.info("File successfully uploaded");

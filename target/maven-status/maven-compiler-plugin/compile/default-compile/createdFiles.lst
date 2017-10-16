@@ -10,4 +10,3 @@ org/wso2/security/dynamic/scanner/DynamicScannerService$2.class
 org/wso2/security/dynamic/scanner/NotificationManager.class
 org/wso2/security/dynamic/scanner/handlers/HttpRequestHandler.class
 org/wso2/security/dynamic/scanner/observable/Wso2ServerHandler.class
-org/wso2/security/dynamic/scanner/DynamicScannerService$1$1.class

@@ -227,7 +227,7 @@ public class ZapScanner extends Observable implements Runnable {
 
     private void runActiveScan() {
         try {
-            HttpResponse activeScanResponse = zapClient.activeScan("", "", "", "", "", "", contextId, false);
+            HttpResponse activeScanResponse = zapClient.activeScan(productUri.toString(), "", "", "", "", "", contextId, false);
             String activeScanId = extractJsonValue(activeScanResponse, "scan");
 
             LOGGER.info("Scan Id of active scan: " + activeScanId);
@@ -285,5 +285,4 @@ public class ZapScanner extends Observable implements Runnable {
 ////        List<String> setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
 //
 //    }
-
 }
