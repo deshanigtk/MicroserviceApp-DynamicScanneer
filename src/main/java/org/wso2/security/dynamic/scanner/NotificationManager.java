@@ -26,12 +26,13 @@ import java.net.URISyntaxException;
 
 public class NotificationManager {
 
-    private final static String NOTIFY = "/dynamicScanner/notify";
+    private final static String NOTIFY = "automationManager/dynamicScanner/notify";
     private final static String FILE_UPLOADED = NOTIFY + "/fileUploaded";
     private final static String FILE_EXTRACTED = NOTIFY + "/fileExtracted";
     private final static String SERVER_STARTED = NOTIFY + "/serverStarted";
     private final static String ZAP_SCAN_STATUS = NOTIFY + "/zapScanStatus";
     private final static String REPORT_READY = NOTIFY + "/reportReady";
+    private final static String MESSAGE = NOTIFY + "/message";
 
     private static String myContainerId;
     private static String automationManagerHost;
@@ -60,7 +61,7 @@ public class NotificationManager {
                     .addParameter("time", time)
                     .build();
 
-            LOGGER.info("URI to notify file uploaded: " + uri);
+            LOGGER.info("Notifying file uploaded " + uri);
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -76,7 +77,7 @@ public class NotificationManager {
                     .addParameter("time", time)
                     .build();
 
-            LOGGER.info("URI to notify file extracted: " + uri);
+            LOGGER.info("Notifying file extracted" + uri);
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -93,7 +94,7 @@ public class NotificationManager {
                     .addParameter("time", time)
                     .build();
             HttpRequestHandler.sendGetRequest(uri);
-            LOGGER.info("URI to notify server started: " + uri);
+            LOGGER.info("Notifying WSO2 server started" + uri);
         } catch (URISyntaxException e) {
             e.printStackTrace();
             LOGGER.error(e.toString());
@@ -108,7 +109,7 @@ public class NotificationManager {
                     .addParameter("progress", String.valueOf(progress))
                     .addParameter("time", time)
                     .build();
-            LOGGER.info("URI to notify zap scan status: " + uri);
+            LOGGER.info("Notifying ZAP scan status" + uri);
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -123,7 +124,21 @@ public class NotificationManager {
                     .addParameter("status", String.valueOf(status))
                     .addParameter("time", time)
                     .build();
-            LOGGER.info("URI to notify report is ready: " + uri);
+            LOGGER.info("Notifying report is ready");
+            HttpRequestHandler.sendGetRequest(uri);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            LOGGER.error(e.toString());
+        }
+    }
+
+    public static void notifyMessage(String message) {
+        try {
+            URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(MESSAGE)
+                    .addParameter("containerId", myContainerId)
+                    .addParameter("message", message)
+                    .build();
+            LOGGER.info("Notifying message" + uri);
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -132,18 +147,6 @@ public class NotificationManager {
     }
 
     public static boolean isConfigured() {
-        return automationManagerHost != null && automationManagerPort != 0 && myContainerId != null;
-    }
-
-    public static String getMyContainerId() {
-        return myContainerId;
-    }
-
-    public static String getAutomationManagerHost() {
-        return automationManagerHost;
-    }
-
-    public static int getAutomationManagerPort() {
-        return automationManagerPort;
+        return automationManagerHost != null && automationManagerPort != -1 && myContainerId != null;
     }
 }

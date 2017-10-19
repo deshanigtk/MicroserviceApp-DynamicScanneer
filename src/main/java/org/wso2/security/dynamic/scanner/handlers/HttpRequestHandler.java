@@ -20,10 +20,13 @@ package org.wso2.security.dynamic.scanner.handlers;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -38,11 +41,15 @@ import java.util.List;
  * @author Deshani Geethika
  */
 public class HttpRequestHandler {
-    private static CloseableHttpClient httpClient = HttpClients.createDefault();
+    //    private static CloseableHttpClient httpClient = HttpClients.createDefault();
+
     private static List<NameValuePair> urlParameters = new ArrayList<>();
 
     public static HttpResponse sendGetRequest(URI request) {
         try {
+            HttpClientBuilder clientBuilder = HttpClients.custom();
+            HttpClient httpClient = clientBuilder.setRetryHandler(new
+                    DefaultHttpRequestRetryHandler(3, false)).build();
             HttpGet httpGetRequest = new HttpGet(request);
             return httpClient.execute(httpGetRequest);
         } catch (IOException e) {
@@ -53,6 +60,9 @@ public class HttpRequestHandler {
 
     public static HttpResponse sendPostrequest(String request, ArrayList<NameValuePair> parameters) {
         try {
+            HttpClientBuilder clientBuilder = HttpClients.custom();
+            HttpClient httpClient = clientBuilder.setRetryHandler(new
+                    DefaultHttpRequestRetryHandler(3, false)).build();
             HttpPost httpPostRequest = new HttpPost(request);
 
             for (NameValuePair parameter : parameters) {

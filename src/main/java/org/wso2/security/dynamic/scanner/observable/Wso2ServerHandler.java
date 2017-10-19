@@ -125,7 +125,6 @@ public class Wso2ServerHandler {
             }
 
         } else {
-            System.out.println("file empty: " + file.isEmpty());
             LOGGER.error("No file");
         }
         return false;
