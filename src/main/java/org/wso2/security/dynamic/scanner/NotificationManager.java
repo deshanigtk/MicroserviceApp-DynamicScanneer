@@ -40,25 +40,17 @@ public class NotificationManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationManager.class);
 
-    public static void setMyContainerId(String myContainerId) {
+    public static void config(String automationManagerHost, int automationManagerPort, String myContainerId) {
+        NotificationManager.automationManagerHost = automationManagerHost;
+        NotificationManager.automationManagerPort = automationManagerPort;
         NotificationManager.myContainerId = myContainerId;
     }
 
-
-    public static void setAutomationManagerHost(String automationManagerHost) {
-        NotificationManager.automationManagerHost = automationManagerHost;
-    }
-
-    public static void setAutomationManagerPort(int automationManagerPort) {
-        NotificationManager.automationManagerPort = automationManagerPort;
-    }
-
-    public static void notifyFileUploaded(boolean status, String time) {
+    public static void notifyFileUploaded(boolean status) {
         try {
             URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(FILE_UPLOADED)
                     .addParameter("containerId", myContainerId)
                     .addParameter("status", String.valueOf(status))
-                    .addParameter("time", time)
                     .build();
 
             LOGGER.info("Notifying file uploaded " + uri);
@@ -69,12 +61,11 @@ public class NotificationManager {
         }
     }
 
-    public static void notifyFileExtracted(boolean status, String time) {
+    public static void notifyFileExtracted(boolean status) {
         try {
             URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(FILE_EXTRACTED)
                     .addParameter("containerId", myContainerId)
                     .addParameter("status", String.valueOf(status))
-                    .addParameter("time", time)
                     .build();
 
             LOGGER.info("Notifying file extracted" + uri);
@@ -86,12 +77,11 @@ public class NotificationManager {
         }
     }
 
-    public static void notifyServerStarted(boolean status, String time) {
+    public static void notifyServerStarted(boolean status) {
         try {
             URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(SERVER_STARTED)
                     .addParameter("containerId", myContainerId)
                     .addParameter("status", String.valueOf(status))
-                    .addParameter("time", time)
                     .build();
             HttpRequestHandler.sendGetRequest(uri);
             LOGGER.info("Notifying WSO2 server started" + uri);
@@ -101,13 +91,12 @@ public class NotificationManager {
         }
     }
 
-    public static void notifyZapScanStatus(String status, int progress, String time) {
+    public static void notifyZapScanStatus(String status, int progress) {
         try {
             URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(ZAP_SCAN_STATUS)
                     .addParameter("containerId", myContainerId)
                     .addParameter("status", String.valueOf(status))
                     .addParameter("progress", String.valueOf(progress))
-                    .addParameter("time", time)
                     .build();
             LOGGER.info("Notifying ZAP scan status" + uri);
             HttpRequestHandler.sendGetRequest(uri);
@@ -117,12 +106,11 @@ public class NotificationManager {
         }
     }
 
-    public static void notifyReportReady(boolean status, String time) {
+    public static void notifyReportReady(boolean status) {
         try {
             URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(REPORT_READY)
                     .addParameter("containerId", myContainerId)
                     .addParameter("status", String.valueOf(status))
-                    .addParameter("time", time)
                     .build();
             LOGGER.info("Notifying report is ready");
             HttpRequestHandler.sendGetRequest(uri);

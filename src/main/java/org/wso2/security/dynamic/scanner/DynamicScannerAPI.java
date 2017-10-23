@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author Deshani Geethika
  */
 @Controller
-@EnableAutoConfiguration
 @RequestMapping("dynamicScanner")
 public class DynamicScannerAPI {
 
@@ -50,21 +49,21 @@ public class DynamicScannerAPI {
 
     @PostMapping(value = "startScan")
     @ResponseBody
-    public void startScan(@RequestParam String automationManagerHost,
-                          @RequestParam int automationManagerPort,
-                          @RequestParam String myContainerId,
-                          @RequestParam boolean isFileUpload,
-                          @RequestParam(required = false) MultipartFile zipFile,
-                          @RequestParam MultipartFile urlListFile,
-                          @RequestParam String zapHost,
-                          @RequestParam int zapPort,
-                          @RequestParam String productHostRelativeToZap,
-                          @RequestParam String productHostRelativeToThis,
-                          @RequestParam int productPort,
-                          @RequestParam boolean isAuthenticatedScan,
-                          @RequestParam boolean isUnauthenticatedScan) {
+    public String startScan(@RequestParam String automationManagerHost,
+                            @RequestParam int automationManagerPort,
+                            @RequestParam String myContainerId,
+                            @RequestParam boolean isFileUpload,
+                            @RequestParam(required = false) MultipartFile zipFile,
+                            @RequestParam MultipartFile urlListFile,
+                            @RequestParam String zapHost,
+                            @RequestParam int zapPort,
+                            @RequestParam String productHostRelativeToZap,
+                            @RequestParam String productHostRelativeToThis,
+                            @RequestParam int productPort,
+                            @RequestParam boolean isAuthenticatedScan,
+                            @RequestParam boolean isUnauthenticatedScan) {
 
-        dynamicScannerService.doWholeProcess(automationManagerHost, automationManagerPort, myContainerId, isFileUpload, zipFile,
+        return dynamicScannerService.doWholeProcess(automationManagerHost, automationManagerPort, myContainerId, isFileUpload, zipFile,
                 urlListFile, zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis, productPort, isAuthenticatedScan, isUnauthenticatedScan);
     }
 

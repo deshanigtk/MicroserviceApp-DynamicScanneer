@@ -1,4 +1,4 @@
-package org.wso2.security.dynamic.scanner.observable;
+package org.wso2.security.dynamic.scanner.scanners;
 /*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -40,7 +40,7 @@ import java.util.*;
  *
  * @author Deshani Geethika
  */
-public class ZapScanner extends Observable implements Runnable {
+public class ZapScanner {
 
     private final String HTTP_SCHEME = "http";
     private final String HTTPS_SCHEME = "https";
@@ -68,18 +68,6 @@ public class ZapScanner extends Observable implements Runnable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ZapScanner.class);
 
-    @Override
-    public void run() {
-        try {
-            doScan();
-            setChanged();
-            notifyObservers(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.toString());
-        }
-    }
-
     public ZapScanner(String zapHost, int zapPort, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
                       boolean isAuthenticatedScan, boolean isUnauthenticatedScan) {
         try {
@@ -95,25 +83,15 @@ public class ZapScanner extends Observable implements Runnable {
             loginCredentials = new HashMap<>();
             loginCredentials.put(keyUsername, valueUserName);
             loginCredentials.put(keyPassword, valuePassword);
+
+            contextName = "new context";
+            sessionName = "new session";
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
 
-    private void doScan() {
-        if (isAuthenticatedScan) {
-            sessionName = "AuthenticatedSession3";
-            contextName = "AuthenticatedContext3";
-            scanner(true);
-        }
-        if (isUnauthenticatedScan) {
-            sessionName = "UnauthenticatedSession3";
-            contextName = "UnauthenticatedContext3";
-            scanner(false);
-        }
-    }
-
-    private void scanner(boolean isAuthenticated) {
+    public void startScan(boolean isAuthenticated) {
         try {
             LOGGER.info("Starting ZAP scanning process...");
 
@@ -253,14 +231,11 @@ public class ZapScanner extends Observable implements Runnable {
                 activeScanStatusResponse = zapClient.activeScanStatus(activeScanId, false);
                 progress = Integer.parseInt(extractJsonValue(activeScanStatusResponse, "status"));
 
-                String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
-                NotificationManager.notifyZapScanStatus("running", progress, time);
+                NotificationManager.notifyZapScanStatus("running", progress);
                 Thread.sleep(1000 * 60);
             }
             if (progress == 100) {
-
-                String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
-                NotificationManager.notifyZapScanStatus("completed", progress, time);
+                NotificationManager.notifyZapScanStatus("completed", progress);
             }
         } catch (InterruptedException | IOException | URISyntaxException e) {
             e.printStackTrace();

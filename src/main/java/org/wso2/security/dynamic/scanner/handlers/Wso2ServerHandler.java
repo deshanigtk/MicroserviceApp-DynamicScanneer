@@ -1,4 +1,4 @@
-package org.wso2.security.dynamic.scanner.observable;
+package org.wso2.security.dynamic.scanner.handlers;
 /*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -19,14 +19,13 @@ package org.wso2.security.dynamic.scanner.observable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.wso2.security.dynamic.scanner.Constants;
 import org.wso2.security.dynamic.scanner.NotificationManager;
 
 import java.io.*;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -36,7 +35,7 @@ import java.util.zip.ZipFile;
  *
  * @author Deshani Geethika
  */
-
+@Component
 public class Wso2ServerHandler {
 
     private static String wso2serverFileAbsolutePath;
@@ -47,19 +46,21 @@ public class Wso2ServerHandler {
         try {
             if (new File(productPath).exists() || new File(productPath).mkdir()) {
                 String fileUploadPath = productPath + File.separator + zipFile.getOriginalFilename();
+                System.out.println(zipFile.getSize());
+                System.out.println(fileUploadPath);
+                System.out.println("Zip file name" + zipFile.getOriginalFilename());
                 if (uploadFile(zipFile, fileUploadPath)) {
-                    String time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
-                    NotificationManager.notifyFileUploaded(true, time);
+                    LOGGER.info("File successfully uploaded");
+                    NotificationManager.notifyFileUploaded(true);
 
                     String folderName = extractFolder(productPath + File.separator + zipFile.getOriginalFilename());
-                    time = new SimpleDateFormat("yyyy-MM-dd:HH.mm.ss").format(new Date());
-                    NotificationManager.notifyFileExtracted(true, time);
+                    NotificationManager.notifyFileExtracted(true);
 
                     findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
 
                     if (wso2serverFileAbsolutePath != null) {
                         Runtime.getRuntime().exec(new String[]{"chmod", "+x", wso2serverFileAbsolutePath});
-                        Thread.sleep(500);
+                        Thread.sleep(1000);
                         runShellScript(new String[]{wso2serverFileAbsolutePath});
                         return true;
                     }
@@ -110,23 +111,19 @@ public class Wso2ServerHandler {
     }
 
     public static boolean uploadFile(MultipartFile file, String fileUploadPath) {
-        if (!file.isEmpty()) {
-            try {
-                byte[] bytes = file.getBytes();
-                BufferedOutputStream stream =
-                        new BufferedOutputStream(new FileOutputStream(new File(fileUploadPath)));
-                stream.write(bytes);
-                stream.close();
-                LOGGER.info("File successfully uploaded");
-                return true;
+        try {
+            byte[] bytes = file.getBytes();
+            BufferedOutputStream stream =
+                    new BufferedOutputStream(new FileOutputStream(new File(fileUploadPath)));
+            stream.write(bytes);
+            stream.close();
+            LOGGER.info("File successfully uploaded");
+            return true;
 
-            } catch (IOException e) {
-                LOGGER.error("File is not uploaded" + e.toString());
-            }
-
-        } else {
-            LOGGER.error("No file");
+        } catch (IOException e) {
+            LOGGER.error("File is not uploaded" + e.toString());
         }
+
         return false;
     }
 
