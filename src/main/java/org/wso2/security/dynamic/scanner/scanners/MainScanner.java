@@ -15,16 +15,16 @@ package org.wso2.security.dynamic.scanner.scanners;/*
 * specific language governing permissions and limitations
 * under the License.
 */
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.wso2.security.dynamic.scanner.Constants;
 import org.wso2.security.dynamic.scanner.NotificationManager;
 import org.wso2.security.dynamic.scanner.handlers.Wso2ServerHandler;
 
 import java.util.Observable;
 
-@Service
 public class MainScanner extends Observable implements Runnable {
 
     private boolean isFileUpload;
@@ -36,21 +36,19 @@ public class MainScanner extends Observable implements Runnable {
     private String productHostRelativeToThis;
     private int productPort;
     private boolean isAuthenticatedScan;
-    private boolean isUnauthenticatedScan;
+    private String message;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MainScanner.class);
 
     @Override
     public void run() {
         startScan();
+        setChanged();
+        notifyObservers(true);
     }
-
-    public MainScanner() {
-    }
-
 
     public MainScanner(boolean isFileUpload, MultipartFile zipFile, MultipartFile urlListFile, String zapHost, int zapPort, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
-                       boolean isAuthenticatedScan, boolean isUnauthenticatedScan) {
+                       boolean isAuthenticatedScan) {
         this.isFileUpload = isFileUpload;
         this.zipFile = zipFile;
         this.urlListFile = urlListFile;
@@ -60,36 +58,40 @@ public class MainScanner extends Observable implements Runnable {
         this.productHostRelativeToThis = productHostRelativeToThis;
         this.productPort = productPort;
         this.isAuthenticatedScan = isAuthenticatedScan;
-        this.isUnauthenticatedScan = isUnauthenticatedScan;
     }
 
     private void startScan() {
         try {
             if (Wso2ServerHandler.hostAvailabilityCheck(zapHost, zapPort)) {
-                if (isFileUpload) {
-                    if (Wso2ServerHandler.uploadZipFileExtractAndStartServer(zipFile)) {
-                        Thread.sleep(120000);
-
-                        if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
-                            NotificationManager.notifyServerStarted(true);
-                            ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis, productPort, isAuthenticatedScan, isUnauthenticatedScan);
-                            zapScanner.startScan(isAuthenticatedScan);
+                if (Wso2ServerHandler.uploadFile(urlListFile, Constants.URL_LIST_PATH)) {
+                    if (isFileUpload) {
+                        if (Wso2ServerHandler.uploadZipFileExtractAndStartServer(zipFile)) {
+                            Thread.sleep(150000);
+                            if (Wso2ServerHandler.hostAvailabilityCheck("localhost", 9443)) {
+                                NotificationManager.notifyServerStarted(true);
+                                ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis, productPort, isAuthenticatedScan);
+                                zapScanner.startScan();
+                            }
+                        }
+                    } else {
+                        if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
+                            ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis, productPort, isAuthenticatedScan);
+                            zapScanner.startScan();
+                        } else {
+                            message = "WSO2 server not available";
                         }
                     }
                 } else {
-                    if (Wso2ServerHandler.hostAvailabilityCheck(productHostRelativeToThis, productPort)) {
-                        ZapScanner zapScanner = new ZapScanner(zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis, productPort, isAuthenticatedScan, isUnauthenticatedScan);
-                        zapScanner.startScan(isAuthenticatedScan);
-                    } else {
-                        LOGGER.error("WSO2 server not available");
-                    }
+                    message = "URL file is not uploaded";
                 }
 
             } else {
-                LOGGER.error("ZAP is not in running state");
+                message = "ZAP is not in running state";
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            message = e.getMessage();
         }
+        LOGGER.error(message);
+        NotificationManager.notifyMessage(message);
     }
 }

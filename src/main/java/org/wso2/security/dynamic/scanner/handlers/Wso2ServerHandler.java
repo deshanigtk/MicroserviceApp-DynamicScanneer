@@ -35,7 +35,7 @@ import java.util.zip.ZipFile;
  *
  * @author Deshani Geethika
  */
-@Component
+
 public class Wso2ServerHandler {
 
     private static String wso2serverFileAbsolutePath;
@@ -46,9 +46,7 @@ public class Wso2ServerHandler {
         try {
             if (new File(productPath).exists() || new File(productPath).mkdir()) {
                 String fileUploadPath = productPath + File.separator + zipFile.getOriginalFilename();
-                System.out.println(zipFile.getSize());
-                System.out.println(fileUploadPath);
-                System.out.println("Zip file name" + zipFile.getOriginalFilename());
+
                 if (uploadFile(zipFile, fileUploadPath)) {
                     LOGGER.info("File successfully uploaded");
                     NotificationManager.notifyFileUploaded(true);
@@ -117,7 +115,7 @@ public class Wso2ServerHandler {
                     new BufferedOutputStream(new FileOutputStream(new File(fileUploadPath)));
             stream.write(bytes);
             stream.close();
-            LOGGER.info("File successfully uploaded");
+//            LOGGER.info("File successfully uploaded");
             return true;
 
         } catch (IOException e) {

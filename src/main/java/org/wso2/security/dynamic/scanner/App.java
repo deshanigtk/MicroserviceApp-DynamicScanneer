@@ -17,6 +17,7 @@ package org.wso2.security.dynamic.scanner;/*
 */
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.retry.annotation.EnableRetry;
 
 /**
  * Main method to start the app

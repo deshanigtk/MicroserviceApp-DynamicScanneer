@@ -32,7 +32,6 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -57,7 +56,6 @@ public class ZapScanner {
     private ZapClient zapClient;
     private URI productUriRelativeToZap;
     private boolean isAuthenticatedScan;
-    private boolean isUnauthenticatedScan;
 
     private String keyUsername = "username";
     private String valueUserName = "admin";
@@ -69,7 +67,7 @@ public class ZapScanner {
     private final static Logger LOGGER = LoggerFactory.getLogger(ZapScanner.class);
 
     public ZapScanner(String zapHost, int zapPort, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
-                      boolean isAuthenticatedScan, boolean isUnauthenticatedScan) {
+                      boolean isAuthenticatedScan) {
         try {
             this.productHostRelativeToZap = productHostRelativeToZap;
             this.productHostRelativeToThis = productHostRelativeToThis;
@@ -77,7 +75,6 @@ public class ZapScanner {
 
             this.zapClient = new ZapClient(zapHost, zapPort, HTTP_SCHEME);
             this.isAuthenticatedScan = isAuthenticatedScan;
-            this.isUnauthenticatedScan = isUnauthenticatedScan;
 
             productUriRelativeToZap = (new URIBuilder()).setHost(productHostRelativeToZap).setPort(productPort).setScheme(HTTPS_SCHEME).build();
             loginCredentials = new HashMap<>();
@@ -91,7 +88,7 @@ public class ZapScanner {
         }
     }
 
-    public void startScan(boolean isAuthenticated) {
+    public void startScan() {
         try {
             LOGGER.info("Starting ZAP scanning process...");
 
@@ -106,7 +103,7 @@ public class ZapScanner {
             HttpResponse createEmptySessionResponse = zapClient.createEmptySession(productUriRelativeToZap.toString(), sessionName, false);
             LOGGER.info("Creating empty session " + HttpRequestHandler.printResponse(createEmptySessionResponse));
 
-            if (isAuthenticated) {
+            if (isAuthenticatedScan) {
                 //login to wso2 server
                 Map<String, String> props = new HashMap<>();
                 props.put("Content-Type", "text/plain");

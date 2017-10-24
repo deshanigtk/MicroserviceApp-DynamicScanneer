@@ -18,7 +18,6 @@ package org.wso2.security.dynamic.scanner;/*
 
 import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,19 +51,18 @@ public class DynamicScannerAPI {
     public String startScan(@RequestParam String automationManagerHost,
                             @RequestParam int automationManagerPort,
                             @RequestParam String myContainerId,
+                            @RequestParam MultipartFile urlListFile,
                             @RequestParam boolean isFileUpload,
                             @RequestParam(required = false) MultipartFile zipFile,
-                            @RequestParam MultipartFile urlListFile,
                             @RequestParam String zapHost,
                             @RequestParam int zapPort,
                             @RequestParam String productHostRelativeToZap,
                             @RequestParam String productHostRelativeToThis,
                             @RequestParam int productPort,
-                            @RequestParam boolean isAuthenticatedScan,
-                            @RequestParam boolean isUnauthenticatedScan) {
+                            @RequestParam boolean isAuthenticatedScan) {
 
-        return dynamicScannerService.doWholeProcess(automationManagerHost, automationManagerPort, myContainerId, isFileUpload, zipFile,
-                urlListFile, zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis, productPort, isAuthenticatedScan, isUnauthenticatedScan);
+        return dynamicScannerService.startScan(automationManagerHost, automationManagerPort, myContainerId, isFileUpload, zipFile,
+                urlListFile, zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis, productPort, isAuthenticatedScan);
     }
 
     @GetMapping(value = "getReport", produces = "application/octet-stream")
