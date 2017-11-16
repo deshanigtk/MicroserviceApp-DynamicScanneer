@@ -112,59 +112,6 @@ public class HttpsRequestHandler {
         }
     }
 
-//    public static void sendRequest(String link, Map<String, String> requestHeaders, Map<String, Object> requestParams,
-//                                                 String method) throws RequestAbortedException, UnsupportedEncodingException {
-//
-//        if (!isInitialized) {
-//            init();
-//        }
-//
-//        StringBuilder postData = new StringBuilder();
-//        if (requestParams != null) {
-//            for (Map.Entry<String, Object> param : requestParams.entrySet()) {
-//                if (postData.length() != 0) {
-//                    postData.append('&');
-//                }
-//                postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
-//                postData.append('=');
-//                postData.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
-//            }
-//        }
-//
-//        String urlParameters = postData.toString();
-//        System.out.println(urlParameters);
-//
-//        byte[] postDataByte = urlParameters.getBytes(StandardCharsets.UTF_8);
-//        System.out.println(postDataByte);
-//        try {
-//            URL url = new URL(link);
-//
-//            httpsURLConnection = (HttpsURLConnection) url.openConnection();
-//            httpsURLConnection.setSSLSocketFactory(sslSocketFactory);
-//            httpsURLConnection.setRequestMethod(method);
-//            httpsURLConnection.setInstanceFollowRedirects(false);
-//            httpsURLConnection.setRequestProperty( "charset", "utf-8");
-//            httpsURLConnection.setDoOutput( true );
-//
-//            if (requestHeaders != null) {
-//                for (Map.Entry<String, String> entry : requestHeaders.entrySet()) {
-//                    httpsURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
-//                }
-//            }
-//            System.out.println("LLLLLLLLLLLLLLLL");
-//            httpsURLConnection.setRequestProperty( "Content-Length", Integer.toString( postDataByte.length ));
-//            DataOutputStream wr = new DataOutputStream(httpsURLConnection.getOutputStream());
-//            wr.write(postDataByte);
-//            wr.flush();
-//            System.out.println("PPPPPPPPPPPPPPPPp");
-//
-//
-//
-//        } catch (IOException e) {
-//            throw new RequestAbortedException("Https request aborted");
-//        }
-//    }
-
     public static String printResponse(HttpsURLConnection httpsURLConnection) throws IOException {
         StringBuilder builder = new StringBuilder();
         builder.append(httpsURLConnection.getResponseCode())
@@ -199,6 +146,8 @@ public class HttpsRequestHandler {
     public static List<String> getResponseValue(String key, HttpsURLConnection httpsURLConnection) {
         Map<String, List<String>> headerFields = httpsURLConnection.getHeaderFields();
         for (Map.Entry<String, List<String>> entry : headerFields.entrySet()) {
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
             if (entry.getKey() == null)
                 continue;
 

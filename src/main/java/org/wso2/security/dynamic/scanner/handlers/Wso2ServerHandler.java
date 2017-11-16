@@ -19,7 +19,6 @@ package org.wso2.security.dynamic.scanner.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.wso2.security.dynamic.scanner.Constants;
 import org.wso2.security.dynamic.scanner.NotificationManager;
@@ -42,29 +41,18 @@ public class Wso2ServerHandler {
     private static String productPath = Constants.PRODUCT_PATH;
     private final static Logger LOGGER = LoggerFactory.getLogger(Wso2ServerHandler.class);
 
-    public static boolean uploadZipFileExtractAndStartServer(MultipartFile zipFile) {
+    public static boolean uploadZipFileExtractAndStartServer(String zipFileName) {
         try {
-            if (new File(productPath).exists() || new File(productPath).mkdir()) {
-                String fileUploadPath = productPath + File.separator + zipFile.getOriginalFilename();
+            String folderName = extractFolder(productPath + File.separator + zipFileName);
+            NotificationManager.notifyFileExtracted(true);
 
-                if (uploadFile(zipFile, fileUploadPath)) {
-                    LOGGER.info("File successfully uploaded");
-                    NotificationManager.notifyFileUploaded(true);
+            findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
 
-                    String folderName = extractFolder(productPath + File.separator + zipFile.getOriginalFilename());
-                    NotificationManager.notifyFileExtracted(true);
-
-                    findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
-
-                    if (wso2serverFileAbsolutePath != null) {
-                        Runtime.getRuntime().exec(new String[]{"chmod", "+x", wso2serverFileAbsolutePath});
-                        Thread.sleep(1000);
-                        runShellScript(new String[]{wso2serverFileAbsolutePath});
-                        return true;
-                    }
-                }
-            } else {
-                LOGGER.error("Product path is not available");
+            if (wso2serverFileAbsolutePath != null) {
+                Runtime.getRuntime().exec(new String[]{"chmod", "+x", wso2serverFileAbsolutePath});
+                Thread.sleep(1000);
+                runShellScript(new String[]{wso2serverFileAbsolutePath, "-DportOffset=" + String.valueOf(Constants.PORT_OFFSET)});
+                return true;
             }
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
@@ -98,14 +86,24 @@ public class Wso2ServerHandler {
         }
     }
 
-    public static boolean hostAvailabilityCheck(String host, int port) {
-        try (Socket s = new Socket(host, port)) {
-            LOGGER.info(host + ":" + port + " is available");
-            return true;
-        } catch (IOException e) {
-            LOGGER.error(e.toString());
-            return false;
+    public static boolean hostAvailabilityCheck(String host, int port, int times) {
+        int i = 0;
+        while (i < times) {
+            LOGGER.info("Checking host availability...");
+            try (Socket s = new Socket(host, port)) {
+                LOGGER.info(host + ":" + port + " is available");
+                return true;
+            } catch (IOException e) {
+                LOGGER.error(e.toString());
+                try {
+                    Thread.sleep(5000);
+                    i++;
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
+        return false;
     }
 
     public static boolean uploadFile(MultipartFile file, String fileUploadPath) {
@@ -115,7 +113,6 @@ public class Wso2ServerHandler {
                     new BufferedOutputStream(new FileOutputStream(new File(fileUploadPath)));
             stream.write(bytes);
             stream.close();
-//            LOGGER.info("File successfully uploaded");
             return true;
 
         } catch (IOException e) {

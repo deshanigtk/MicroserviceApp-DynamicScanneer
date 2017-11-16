@@ -55,7 +55,6 @@ public class ZapScanner {
     private Map<String, Object> loginCredentials;
     private ZapClient zapClient;
     private URI productUriRelativeToZap;
-    private boolean isAuthenticatedScan;
 
     private String keyUsername = "username";
     private String valueUserName = "admin";
@@ -66,17 +65,15 @@ public class ZapScanner {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ZapScanner.class);
 
-    public ZapScanner(String zapHost, int zapPort, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
-                      boolean isAuthenticatedScan) {
+    public ZapScanner(String zapHost, int zapPort, String productHostRelativeToZap, String productHostRelativeToThis, int productPort) {
         try {
             this.productHostRelativeToZap = productHostRelativeToZap;
             this.productHostRelativeToThis = productHostRelativeToThis;
-            this.productPort = productPort;
+            this.productPort = productPort + Constants.PORT_OFFSET;
 
             this.zapClient = new ZapClient(zapHost, zapPort, HTTP_SCHEME);
-            this.isAuthenticatedScan = isAuthenticatedScan;
 
-            productUriRelativeToZap = (new URIBuilder()).setHost(productHostRelativeToZap).setPort(productPort).setScheme(HTTPS_SCHEME).build();
+            productUriRelativeToZap = new URIBuilder().setHost(productHostRelativeToZap).setPort(this.productPort).setScheme(HTTPS_SCHEME).build();
             loginCredentials = new HashMap<>();
             loginCredentials.put(keyUsername, valueUserName);
             loginCredentials.put(keyPassword, valuePassword);
@@ -103,51 +100,45 @@ public class ZapScanner {
             HttpResponse createEmptySessionResponse = zapClient.createEmptySession(productUriRelativeToZap.toString(), sessionName, false);
             LOGGER.info("Creating empty session " + HttpRequestHandler.printResponse(createEmptySessionResponse));
 
-            if (isAuthenticatedScan) {
-                //login to wso2 server
-                Map<String, String> props = new HashMap<>();
-                props.put("Content-Type", "text/plain");
+            //login to wso2 server
+            Map<String, String> props = new HashMap<>();
+            props.put("Content-Type", "text/plain");
 
-                URI loginUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(loginUrl).build();
-                LOGGER.info("URI to login to wso2server: " + loginUri.toString());
-                HttpsURLConnection httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
-                List<String> setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
+            URI loginUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(loginUrl).build();
+            LOGGER.info("URI to login to wso2server: " + loginUri.toString());
+            HttpsURLConnection httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
+            List<String> setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
 
-                assert setCookieResponseList != null;
-                String setCookieResponse = setCookieResponseList.get(0);
-                String jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
+            assert setCookieResponseList != null;
+            String setCookieResponse = setCookieResponseList.get(0);
+            String jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
 
-                HttpResponse setSessionTokenResponse = zapClient.setSessionTokenValue(productUriRelativeToZap.toString(), sessionName, "JSESSIONID", jsessionId, false);
-                LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
+            HttpResponse setSessionTokenResponse = zapClient.setSessionTokenValue(productUriRelativeToZap.toString(), sessionName, "JSESSIONID", jsessionId, false);
+            LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
 
-                //Exclude logout url from spider
-                URI logoutUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(logoutUrl)
-                        .build();
-                LOGGER.info("Logout URI: " + logoutUri.toString());
-                HttpsURLConnection httpsURLConnectionLogout = HttpsRequestHandler.sendRequest(logoutUri.toString(), props, null, POST);
-                LOGGER.info("Response of sending logout request to server: " + HttpsRequestHandler.printResponse(httpsURLConnectionLogout));
+            //Exclude logout url from spider
+            URI logoutUri = (new URIBuilder()).setHost(productHostRelativeToThis).setPort(productPort).setScheme("https").setPath(logoutUrl)
+                    .build();
+            LOGGER.info("Logout URI: " + logoutUri.toString());
+            HttpsURLConnection httpsURLConnectionLogout = HttpsRequestHandler.sendRequest(logoutUri.toString(), props, null, POST);
+            LOGGER.info("Response of sending logout request to server: " + HttpsRequestHandler.printResponse(httpsURLConnectionLogout));
 
-                HttpResponse excludeFromSpiderResponse = zapClient.excludeFromSpider(logoutUri.toString(), false);
-                LOGGER.info("Exclude logout from spider response: " + HttpRequestHandler.printResponse(excludeFromSpiderResponse));
+            logoutUri = (new URIBuilder()).setHost(productHostRelativeToZap).setPort(productPort).setScheme("https").setPath(logoutUrl)
+                    .build();
 
-                //Remove previously created session
-                HttpResponse removeSessionResponse = zapClient.removeSession(productUriRelativeToZap.toString(), sessionName, false);
-                LOGGER.info("Remove Session Response: " + HttpRequestHandler.printResponse(removeSessionResponse));
+            HttpResponse excludeFromSpiderResponse = zapClient.excludeFromSpider(logoutUri.toString(), false);
+            LOGGER.info("Exclude logout from spider response: " + HttpRequestHandler.printResponse(excludeFromSpiderResponse));
 
-                //Create an empty session
-                createEmptySessionResponse = zapClient.createEmptySession(productUriRelativeToZap.toString(), sessionName, false);
-                LOGGER.info("Creating empty session: " + HttpRequestHandler.printResponse(createEmptySessionResponse));
+            httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
+            setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
 
-                httpsURLConnection = HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, POST);
-                setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
+            assert setCookieResponseList != null;
+            setCookieResponse = setCookieResponseList.get(0);
+            jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
 
-                assert setCookieResponseList != null;
-                setCookieResponse = setCookieResponseList.get(0);
-                jsessionId = setCookieResponse.substring(setCookieResponse.indexOf("=") + 1, setCookieResponse.indexOf(";"));
+            setSessionTokenResponse = zapClient.setSessionTokenValue(productUriRelativeToZap.toString(), sessionName, "JSESSIONID", jsessionId, false);
+            LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
 
-                setSessionTokenResponse = zapClient.setSessionTokenValue(productUriRelativeToZap.toString(), sessionName, "JSESSIONID", jsessionId, false);
-                LOGGER.info("Setting JSESSIONID to the newly created session: " + HttpRequestHandler.printResponse(setSessionTokenResponse));
-            }
             runSpider();
             runAjaxSpider();
             runActiveScan();
@@ -245,30 +236,4 @@ public class ZapScanner {
         JSONObject jsonObject = new JSONObject(jsonString);
         return jsonObject.getString(key);
     }
-
-//    public static void main(String[] args) throws IOException {
-//
-//        String loginUrl = "/carbon/admin/login_action.jsp";
-//        Map<String, String> props = new HashMap<>();
-//        props.put("Content-Type", "text/x-www-form-urlencoded");
-//
-//        URI loginUri = null;
-//        try {
-//            loginUri = (new URIBuilder()).setHost("localhost").setPort(9443).setScheme("https").setPath(loginUrl).build();
-//        } catch (URISyntaxException e) {
-//            e.printStackTrace();
-//        }
-//
-//        Map<String, Object> loginCredentials = new HashMap<>();
-//        loginCredentials.put("username", "admin");
-//        loginCredentials.put("password", "admin");
-//
-//        LOGGER.info("URI to login to wso2server: " + loginUri.toString());
-//         HttpsRequestHandler.sendRequest(loginUri.toString(), props, loginCredentials, "POST");
-////        System.out.println(HttpsRequestHandler.printResponse(httpsURLConnection));
-//
-////        List<String> setCookieResponseList = HttpsRequestHandler.getResponseValue("Set-Cookie", httpsURLConnection);
-//
-//    }
-
 }

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.wso2.security.dynamic.scanner.handlers.Wso2ServerHandler;
 import org.wso2.security.dynamic.scanner.scanners.MainScanner;
 
 import javax.servlet.http.HttpServletResponse;
@@ -39,18 +40,34 @@ public class DynamicScannerService {
 
 
     public String startScan(String automationManagerHost, int automationManagerPort, String containerId, boolean isFileUpload, MultipartFile zipFile,
-                            MultipartFile urlListFile, String zapHost, int zapPort, String productHostRelativeToZap, String productHostRelativeToThis, int productPort,
-                            boolean isAuthenticatedScan) {
+                            MultipartFile urlListFile, String zapHost, int zapPort, String productHostRelativeToZap, String productHostRelativeToThis, int productPort) {
 
+        String zipFileName = null;
         //Configure notification manager
         if (configureNotificationManager(automationManagerHost, automationManagerPort, containerId)) {
             //Upload URL list file
 
             if (urlListFile != null) {
-                if (isFileUpload) {
-                    if (zipFile == null || !zipFile.getOriginalFilename().endsWith(".zip")) {
-                        return "Please upload a zip file";
+                if (Wso2ServerHandler.uploadFile(urlListFile, Constants.URL_LIST_PATH)) {
+                    if (isFileUpload) {
+                        if (zipFile == null || !zipFile.getOriginalFilename().endsWith(".zip")) {
+                            return "Please upload a zip file";
+                        } else {
+                            zipFileName = zipFile.getOriginalFilename();
+                            if (new File(Constants.PRODUCT_PATH).exists() || new File(Constants.PRODUCT_PATH).mkdir()) {
+                                String fileUploadPath = Constants.PRODUCT_PATH + File.separator + zipFile.getOriginalFilename();
+
+                                if (Wso2ServerHandler.uploadFile(zipFile, fileUploadPath)) {
+                                    LOGGER.info("File successfully uploaded");
+                                    NotificationManager.notifyFileUploaded(true);
+                                } else {
+                                    return "Error occurred while uploading zip file";
+                                }
+                            }
+                        }
                     }
+                } else {
+                    return "Error occurred while uploading URL file";
                 }
             } else {
                 return "Please upload url list file";
@@ -66,8 +83,8 @@ public class DynamicScannerService {
             }
         };
 
-        MainScanner mainScanner = new MainScanner(isFileUpload, zipFile, urlListFile, zapHost, zapPort, productHostRelativeToZap,
-                productHostRelativeToThis, productPort, isAuthenticatedScan);
+        MainScanner mainScanner = new MainScanner(isFileUpload, zipFileName, zapHost, zapPort, productHostRelativeToZap,
+                productHostRelativeToThis, productPort);
         mainScanner.addObserver(observer);
         new Thread(mainScanner).start();
         return "Ok";

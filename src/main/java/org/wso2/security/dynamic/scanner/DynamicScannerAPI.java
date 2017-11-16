@@ -58,11 +58,10 @@ public class DynamicScannerAPI {
                             @RequestParam int zapPort,
                             @RequestParam String productHostRelativeToZap,
                             @RequestParam String productHostRelativeToThis,
-                            @RequestParam int productPort,
-                            @RequestParam boolean isAuthenticatedScan) {
+                            @RequestParam int productPort) {
 
         return dynamicScannerService.startScan(automationManagerHost, automationManagerPort, myContainerId, isFileUpload, zipFile,
-                urlListFile, zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis, productPort, isAuthenticatedScan);
+                urlListFile, zapHost, zapPort, productHostRelativeToZap, productHostRelativeToThis, productPort);
     }
 
     @GetMapping(value = "getReport", produces = "application/octet-stream")

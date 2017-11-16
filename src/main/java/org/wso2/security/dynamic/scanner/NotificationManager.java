@@ -56,8 +56,7 @@ public class NotificationManager {
             LOGGER.info("Notifying file uploaded " + uri);
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
-            LOGGER.error(e.toString());
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -71,8 +70,7 @@ public class NotificationManager {
             LOGGER.info("Notifying file extracted" + uri);
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
-            LOGGER.error(e.toString());
+            LOGGER.error(e.getMessage());
 
         }
     }
@@ -86,8 +84,7 @@ public class NotificationManager {
             HttpRequestHandler.sendGetRequest(uri);
             LOGGER.info("Notifying WSO2 server started" + uri);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
-            LOGGER.error(e.toString());
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -101,8 +98,7 @@ public class NotificationManager {
             LOGGER.info("Notifying ZAP scan status" + uri);
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
-            LOGGER.error(e.toString());
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -115,7 +111,6 @@ public class NotificationManager {
             LOGGER.info("Notifying report is ready");
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
             LOGGER.error(e.toString());
         }
     }
@@ -126,11 +121,10 @@ public class NotificationManager {
                     .addParameter("containerId", myContainerId)
                     .addParameter("message", message)
                     .build();
-            LOGGER.info("Notifying message" + uri);
+            LOGGER.info("Notifying message");
             HttpRequestHandler.sendGetRequest(uri);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
-            LOGGER.error(e.toString());
+            LOGGER.error(e.getMessage());
         }
     }
 

@@ -18,7 +18,8 @@ package org.wso2.security.dynamic.scanner;/*
 
 public class Constants {
 
-    public final static String REPORT_FILE_PATH = "/home/ZapReport.html";
-    public final static String PRODUCT_PATH = "/home/deshani/Documents/Product123";
+    public final static String REPORT_FILE_PATH = "/home/deshani/Documents/ZapReportCCC.html";
+    public final static String PRODUCT_PATH = "/home/deshani/Documents/ProductCCC";
     public final static String URL_LIST_PATH = "/home/deshani/Documents/urlList";
+    public final static int PORT_OFFSET = 1;
 }
