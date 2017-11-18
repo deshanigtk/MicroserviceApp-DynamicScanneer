@@ -1,5 +1,4 @@
-package org.wso2.security.dynamic.scanner.handlers;
-/*
+package org.wso2.security.dynamic.scanner.handlers;/*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -20,48 +19,23 @@ package org.wso2.security.dynamic.scanner.handlers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
-import org.wso2.security.dynamic.scanner.Constants;
-import org.wso2.security.dynamic.scanner.NotificationManager;
+import org.wso2.security.dynamic.scanner.ProductManager;
 
-import java.io.*;
-import java.net.Socket;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-/**
- * Methods to extract a zip file of wso2 product, run wso2server.sh, check a host is available
- *
- * @author Deshani Geethika
- */
-
-public class Wso2ServerHandler {
+public class FileHandler {
 
     private static String wso2serverFileAbsolutePath;
-    private static String productPath = Constants.PRODUCT_PATH;
-    private final static Logger LOGGER = LoggerFactory.getLogger(Wso2ServerHandler.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ProductManager.class);
 
-    public static boolean uploadZipFileExtractAndStartServer(String zipFileName) {
-        try {
-            String folderName = extractFolder(productPath + File.separator + zipFileName);
-            NotificationManager.notifyFileExtracted(true);
-
-            findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
-
-            if (wso2serverFileAbsolutePath != null) {
-                Runtime.getRuntime().exec(new String[]{"chmod", "+x", wso2serverFileAbsolutePath});
-                Thread.sleep(1000);
-                runShellScript(new String[]{wso2serverFileAbsolutePath, "-DportOffset=" + String.valueOf(Constants.PORT_OFFSET)});
-                return true;
-            }
-        } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
-            LOGGER.error(e.toString());
-        }
-        return false;
-    }
-
-    private static void findFile(File parentDirectory, String fileToFind) {
+    public static void findFile(File parentDirectory, String fileToFind) {
         File[] files = parentDirectory.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -77,35 +51,6 @@ public class Wso2ServerHandler {
         }
     }
 
-    private static void runShellScript(String[] command) {
-        try {
-            Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
-            e.printStackTrace();
-            LOGGER.error(e.toString());
-        }
-    }
-
-    public static boolean hostAvailabilityCheck(String host, int port, int times) {
-        int i = 0;
-        while (i < times) {
-            LOGGER.info("Checking host availability...");
-            try (Socket s = new Socket(host, port)) {
-                LOGGER.info(host + ":" + port + " is available");
-                return true;
-            } catch (IOException e) {
-                LOGGER.error(e.toString());
-                try {
-                    Thread.sleep(5000);
-                    i++;
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }
-        return false;
-    }
-
     public static boolean uploadFile(MultipartFile file, String fileUploadPath) {
         try {
             byte[] bytes = file.getBytes();
@@ -118,11 +63,10 @@ public class Wso2ServerHandler {
         } catch (IOException e) {
             LOGGER.error("File is not uploaded" + e.toString());
         }
-
         return false;
     }
 
-    private static String extractFolder(String zipFile) {
+    public static String extractFolder(String zipFile) {
         try {
             int BUFFER = 2048;
             File file = new File(zipFile);
@@ -178,5 +122,9 @@ public class Wso2ServerHandler {
             LOGGER.error(e.toString());
         }
         return null;
+    }
+
+    public static String getWso2serverFileAbsolutePath() {
+        return wso2serverFileAbsolutePath;
     }
 }

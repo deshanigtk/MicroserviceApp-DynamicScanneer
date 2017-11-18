@@ -1,5 +1,4 @@
 org/wso2/security/dynamic/scanner/DynamicScannerService.class
-org/wso2/security/dynamic/scanner/scanners/MainScanner.class
 org/wso2/security/dynamic/scanner/App.class
 org/wso2/security/dynamic/scanner/clients/ZapClient.class
 org/wso2/security/dynamic/scanner/handlers/HttpsRequestHandler.class
@@ -9,3 +8,4 @@ org/wso2/security/dynamic/scanner/NotificationManager.class
 org/wso2/security/dynamic/scanner/scanners/ZapScanner.class
 org/wso2/security/dynamic/scanner/handlers/Wso2ServerHandler.class
 org/wso2/security/dynamic/scanner/handlers/HttpRequestHandler.class
+org/wso2/security/dynamic/scanner/handlers/FileHandler.class

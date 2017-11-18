@@ -29,10 +29,6 @@ public class NotificationManager {
     private final static String NOTIFY = "automationManager/dynamicScanner/notify";
     private final static String FILE_UPLOADED = NOTIFY + "/fileUploaded";
     private final static String FILE_EXTRACTED = NOTIFY + "/fileExtracted";
-    private final static String SERVER_STARTED = NOTIFY + "/serverStarted";
-    private final static String ZAP_SCAN_STATUS = NOTIFY + "/zapScanStatus";
-    private final static String REPORT_READY = NOTIFY + "/reportReady";
-    private final static String MESSAGE = NOTIFY + "/message";
 
     private static String myContainerId;
     private static String automationManagerHost;
@@ -72,59 +68,6 @@ public class NotificationManager {
         } catch (URISyntaxException e) {
             LOGGER.error(e.getMessage());
 
-        }
-    }
-
-    public static void notifyServerStarted(boolean status) {
-        try {
-            URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(SERVER_STARTED)
-                    .addParameter("containerId", myContainerId)
-                    .addParameter("status", String.valueOf(status))
-                    .build();
-            HttpRequestHandler.sendGetRequest(uri);
-            LOGGER.info("Notifying WSO2 server started" + uri);
-        } catch (URISyntaxException e) {
-            LOGGER.error(e.getMessage());
-        }
-    }
-
-    public static void notifyZapScanStatus(String status, int progress) {
-        try {
-            URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(ZAP_SCAN_STATUS)
-                    .addParameter("containerId", myContainerId)
-                    .addParameter("status", String.valueOf(status))
-                    .addParameter("progress", String.valueOf(progress))
-                    .build();
-            LOGGER.info("Notifying ZAP scan status" + uri);
-            HttpRequestHandler.sendGetRequest(uri);
-        } catch (URISyntaxException e) {
-            LOGGER.error(e.getMessage());
-        }
-    }
-
-    public static void notifyReportReady(boolean status) {
-        try {
-            URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(REPORT_READY)
-                    .addParameter("containerId", myContainerId)
-                    .addParameter("status", String.valueOf(status))
-                    .build();
-            LOGGER.info("Notifying report is ready");
-            HttpRequestHandler.sendGetRequest(uri);
-        } catch (URISyntaxException e) {
-            LOGGER.error(e.toString());
-        }
-    }
-
-    public static void notifyMessage(String message) {
-        try {
-            URI uri = (new URIBuilder()).setHost(automationManagerHost).setPort(automationManagerPort).setScheme("http").setPath(MESSAGE)
-                    .addParameter("containerId", myContainerId)
-                    .addParameter("message", message)
-                    .build();
-            LOGGER.info("Notifying message");
-            HttpRequestHandler.sendGetRequest(uri);
-        } catch (URISyntaxException e) {
-            LOGGER.error(e.getMessage());
         }
     }
 
