@@ -1,11 +1,8 @@
+/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/handlers/FileHandler.java
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/App.java
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/Constants.java
-/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/handlers/Wso2ServerHandler.java
-/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/clients/ZapClient.java
+/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/ProductManagerService.java
+/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/ProductManager.java
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/handlers/HttpRequestHandler.java
 /home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/NotificationManager.java
-/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/handlers/HttpsRequestHandler.java
-/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/scanners/MainScanner.java
-/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/DynamicScannerAPI.java
-/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/scanners/ZapScanner.java
-/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/DynamicScannerService.java
+/home/deshani/Documents/1.Project/GitCloned/MicroserviceApp-DynamicScanner/src/main/java/org/wso2/security/dynamic/scanner/ProductManagerAPI.java

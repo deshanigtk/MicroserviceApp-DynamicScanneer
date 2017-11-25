@@ -1,4 +1,3 @@
-package org.wso2.security.dynamic.scanner.handlers;
 /*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -16,35 +15,39 @@ package org.wso2.security.dynamic.scanner.handlers;
 * specific language governing permissions and limitations
 * under the License.
 */
+package org.wso2.security.tools.product.manager.handler;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Utility methods for HTTP request handling
- *
- * @author Deshani Geethika
  */
+@SuppressWarnings({"unused"})
 public class HttpRequestHandler {
-    //    private static CloseableHttpClient httpClient = HttpClients.createDefault();
-
     private static List<NameValuePair> urlParameters = new ArrayList<>();
 
+    /**
+     * Send HTTP GET request
+     *
+     * @param request Requested URI
+     * @return HTTPResponse after executing the command
+     */
     public static HttpResponse sendGetRequest(URI request) {
         try {
             HttpClientBuilder clientBuilder = HttpClients.custom();
@@ -58,6 +61,12 @@ public class HttpRequestHandler {
         return null;
     }
 
+    /**
+     * Send HTTP POST request
+     *
+     * @param request Requested URI
+     * @return HTTPResponse after executing the command
+     */
     public static HttpResponse sendPostrequest(String request, ArrayList<NameValuePair> parameters) {
         try {
             HttpClientBuilder clientBuilder = HttpClients.custom();
@@ -77,6 +86,12 @@ public class HttpRequestHandler {
         return null;
     }
 
+    /**
+     * Read HTTPResponse and returns a string
+     *
+     * @param response HTTPResponse
+     * @return String of HTTPResponse
+     */
 
     public static String printResponse(HttpResponse response) {
         try {
@@ -95,24 +110,4 @@ public class HttpRequestHandler {
         return null;
     }
 
-    public static boolean saveResponseToFile(HttpResponse response, File destinationFile) {
-        try {
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                InputStream inputStream = entity.getContent();
-                FileOutputStream output = new FileOutputStream(destinationFile);
-                int l;
-                byte[] tmp = new byte[2048];
-                while ((l = inputStream.read(tmp)) != -1) {
-                    output.write(tmp, 0, l);
-                }
-                output.close();
-                inputStream.close();
-                return true;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
 }

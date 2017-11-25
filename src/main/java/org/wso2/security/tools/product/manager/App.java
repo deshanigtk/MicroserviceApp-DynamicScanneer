@@ -1,4 +1,4 @@
-package org.wso2.security.dynamic.scanner;/*
+/*
 *  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,9 +15,19 @@ package org.wso2.security.dynamic.scanner;/*
 * specific language governing permissions and limitations
 * under the License.
 */
+package org.wso2.security.tools.product.manager;
 
-public class Constants {
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-    public final static String PRODUCT_PATH = "/home/deshani/Documents/Product12345";
-    public final static int PORT_OFFSET = 0;
+/**
+ * Main method to start the app
+ */
+@SpringBootApplication
+public class App {
+
+    public static void main(String[] args) {
+        SpringApplication.run(App.class, args);
+    }
+
 }

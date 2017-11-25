@@ -1,5 +1,5 @@
-package org.wso2.security.dynamic.scanner;/*
-*  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+/*
+*  Copyright (c) ${2017}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,41 +15,45 @@ package org.wso2.security.dynamic.scanner;/*
 * specific language governing permissions and limitations
 * under the License.
 */
+package org.wso2.security.tools.product.manager.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.wso2.security.tools.product.manager.service.ProductManagerService;
 
 /**
- * API which exposes to outside world
- *
- * @author Deshani Geethika
+ * The class {@code ProductManagerController} is the web controller which defines the routines to start a server
  */
 @Controller
 @RequestMapping("productManager")
-public class ProductManagerAPI {
+public class ProductManagerController {
 
     private final ProductManagerService productManagerService;
 
     @Autowired
-    public ProductManagerAPI(ProductManagerService productManagerService) {
+    public ProductManagerController(ProductManagerService productManagerService) {
         this.productManagerService = productManagerService;
     }
 
-    @GetMapping(value = "isReady")
-    @ResponseBody
-    public boolean isReady() {
-        return true;
-    }
-
+    /**
+     * Controller method to start server
+     *
+     * @param automationManagerHost Automation Manager host
+     * @param automationManagerPort Automation Manager port
+     * @param myContainerId         Container Id of this (Since this micro service is running inside a container)
+     * @param zipFile               ZIP file of the product binary
+     */
     @PostMapping(value = "startServer")
     @ResponseBody
     public String startServer(@RequestParam String automationManagerHost,
                               @RequestParam int automationManagerPort,
                               @RequestParam String myContainerId,
                               @RequestParam MultipartFile zipFile) {
-
         return productManagerService.startServer(automationManagerHost, automationManagerPort, myContainerId, zipFile);
     }
 }
