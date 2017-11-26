@@ -67,7 +67,7 @@ public class HttpRequestHandler {
      * @param request Requested URI
      * @return HTTPResponse after executing the command
      */
-    public static HttpResponse sendPostrequest(String request, ArrayList<NameValuePair> parameters) {
+    public static HttpResponse sendPostRequest(String request, ArrayList<NameValuePair> parameters) {
         try {
             HttpClientBuilder clientBuilder = HttpClients.custom();
             HttpClient httpClient = clientBuilder.setRetryHandler(new

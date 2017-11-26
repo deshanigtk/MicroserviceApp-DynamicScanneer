@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.wso2.security.tools.product.manager.exception.NotificationManagerException;
+import org.wso2.security.tools.product.manager.exception.ProductManagerException;
 import org.wso2.security.tools.product.manager.service.ProductManagerService;
 
 /**
@@ -50,10 +52,10 @@ public class ProductManagerController {
      */
     @PostMapping(value = "startServer")
     @ResponseBody
-    public String startServer(@RequestParam String automationManagerHost,
+    public void startServer(@RequestParam String automationManagerHost,
                               @RequestParam int automationManagerPort,
                               @RequestParam String myContainerId,
-                              @RequestParam MultipartFile zipFile) {
-        return productManagerService.startServer(automationManagerHost, automationManagerPort, myContainerId, zipFile);
+                              @RequestParam MultipartFile zipFile) throws NotificationManagerException, ProductManagerException {
+        productManagerService.startServer(automationManagerHost, automationManagerPort, myContainerId, zipFile);
     }
 }

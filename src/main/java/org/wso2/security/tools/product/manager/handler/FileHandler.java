@@ -17,11 +17,8 @@
 */
 package org.wso2.security.tools.product.manager.handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.io.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.wso2.security.tools.product.manager.Constants;
-import org.wso2.security.tools.product.manager.ProductManagerExecutor;
 
 import java.io.*;
 import java.util.Enumeration;
@@ -32,8 +29,6 @@ import java.util.zip.ZipFile;
  * Utility methods for file handling
  */
 public class FileHandler {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(ProductManagerExecutor.class);
     private static String wso2serverFileAbsolutePath;
 
     /**
@@ -97,7 +92,7 @@ public class FileHandler {
                 dest.close();
                 is.close();
             }
-            if (currentEntry.endsWith(Constants.ZIP_FILE_EXTENSION)) {
+            if (currentEntry.endsWith(".zip")) {
                 // found a zip file, try to open
                 extractZipFile(destFile.getAbsolutePath());
             }
@@ -114,10 +109,7 @@ public class FileHandler {
      * @throws IOException If an error occurs while I/O operations
      */
     public static void uploadFile(MultipartFile file, String destinationPath) throws IOException {
-        byte[] bytes = file.getBytes();
-        BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(new File(destinationPath)));
-        stream.write(bytes);
-        stream.close();
+        FileUtils.copyInputStreamToFile(new BufferedInputStream(file.getInputStream()), new File(destinationPath));
     }
 
     /**

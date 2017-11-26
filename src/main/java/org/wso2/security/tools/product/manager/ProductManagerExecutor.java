@@ -19,6 +19,7 @@ package org.wso2.security.tools.product.manager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.security.tools.product.manager.config.ProductManagerProperties;
 import org.wso2.security.tools.product.manager.exception.NotificationManagerException;
 import org.wso2.security.tools.product.manager.exception.ProductManagerException;
 import org.wso2.security.tools.product.manager.handler.FileHandler;
@@ -30,48 +31,52 @@ import java.net.Socket;
 /**
  * Methods to extract a zip file of wso2 product and run wso2server.sh asynchronously
  */
+@SuppressWarnings({"unused"})
 public class ProductManagerExecutor implements Runnable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ProductManagerExecutor.class);
-    private String productPath = Constants.PRODUCT_PATH;
     private String zipFileName;
 
     public ProductManagerExecutor(String zipFileName) {
         this.zipFileName = zipFileName;
     }
 
+    /**
+     * Extract the uploaded zip file and command to start server.
+     */
     @Override
     public void run() {
         try {
             extractZipFileAndStartServer();
         } catch (NotificationManagerException | ProductManagerException e) {
-            e.printStackTrace();
+            LOGGER.error(e.toString());
         }
     }
 
     private void extractZipFileAndStartServer() throws NotificationManagerException, ProductManagerException {
         String folderName;
+        String productPath = ProductManagerProperties.getProductManagerProductPath();
         try {
             folderName = FileHandler.extractZipFile(productPath + File.separator + zipFileName);
             NotificationManager.notifyFileExtracted(true);
-            LOGGER.info("File successfully uploaded");
+            LOGGER.info("File successfully extracted");
         } catch (IOException e) {
             NotificationManager.notifyFileExtracted(false);
             throw new ProductManagerException("Error occurred while extracting zip file");
         }
 
-        FileHandler.findFile(new File(productPath + File.separator + folderName), "wso2server.sh");
-        if (FileHandler.getWso2serverFileAbsolutePath() != null) {
-            try {
-                runShellScript(new String[]{"chmod", "+x", FileHandler.getWso2serverFileAbsolutePath()});
-                Thread.sleep(1000);
-                runShellScript(new String[]{FileHandler.getWso2serverFileAbsolutePath(), "-DportOffset=" + String
-                        .valueOf(Constants.PORT_OFFSET)});
-            } catch (IOException | InterruptedException e) {
-                throw new ProductManagerException("Error occurred while executing sh file");
-            }
-        } else {
-            throw new ProductManagerException("Error occurred while getting wso2server.sh file");
+        FileHandler.findFile(new File(productPath + File.separator + folderName), ProductManagerProperties
+                .getProductManagerWso2ServerFile());
+        try {
+            runShellScript(new String[]{"chmod", "+x", FileHandler.getWso2serverFileAbsolutePath()});
+            Thread.sleep(1000);
+            runShellScript(new String[]{FileHandler.getWso2serverFileAbsolutePath(), ProductManagerProperties
+                    .getProductManagerPortArg() +
+                    String.valueOf(ProductManagerProperties.getProductManagerPortOffset())});
+            LOGGER.info("Successfully commanded to start server");
+        } catch (IOException | InterruptedException e) {
+            NotificationManager.notifyServerStarted(false);
+            throw new ProductManagerException("Error occurred while executing sh file");
         }
     }
 

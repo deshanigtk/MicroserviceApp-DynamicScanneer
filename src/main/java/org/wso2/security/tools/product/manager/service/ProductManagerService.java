@@ -21,9 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.wso2.security.tools.product.manager.Constants;
 import org.wso2.security.tools.product.manager.NotificationManager;
 import org.wso2.security.tools.product.manager.ProductManagerExecutor;
+import org.wso2.security.tools.product.manager.config.ProductManagerProperties;
 import org.wso2.security.tools.product.manager.exception.NotificationManagerException;
 import org.wso2.security.tools.product.manager.exception.ProductManagerException;
 import org.wso2.security.tools.product.manager.handler.FileHandler;
@@ -44,15 +44,15 @@ public class ProductManagerService {
      *
      * @param automationManagerHost Automation Manager host
      * @param automationManagerPort Automation Manager port
-     * @param containerId Container id
-     * @param zipFile Zip file to be uploaded
+     * @param containerId           Container id
+     * @param zipFile               Zip file to be uploaded
      * @throws ProductManagerException
      */
     public void startServer(String automationManagerHost, int automationManagerPort, String containerId,
                             MultipartFile zipFile) throws ProductManagerException, NotificationManagerException {
 
         String zipFileName;
-        File productFolder = new File(Constants.PRODUCT_PATH);
+        File productFolder = new File(ProductManagerProperties.getProductManagerProductPath());
 
         if (!zipFile.getOriginalFilename().endsWith(".zip")) {
             throw new ProductManagerException("Please upload a zip file");
@@ -62,7 +62,8 @@ public class ProductManagerService {
         }
         zipFileName = zipFile.getOriginalFilename();
         if (productFolder.exists() || productFolder.mkdir()) {
-            String fileUploadPath = Constants.PRODUCT_PATH + File.separator + zipFile.getOriginalFilename();
+            String fileUploadPath = ProductManagerProperties.getProductManagerProductPath() + File.separator +
+                    zipFile.getOriginalFilename();
             try {
                 FileHandler.uploadFile(zipFile, fileUploadPath);
                 LOGGER.info("File successfully uploaded");

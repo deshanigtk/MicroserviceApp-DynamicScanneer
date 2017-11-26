@@ -36,7 +36,7 @@ import java.net.URISyntaxException;
  */
 public class NotificationManager {
 
-    private final static String NOTIFY = "automationManager/dynamicScanner/notify";
+    private final static String NOTIFY = "automationManager/productManager/notify";
     private final static String FILE_UPLOADED = NOTIFY + "/fileUploaded";
     private final static String FILE_EXTRACTED = NOTIFY + "/fileExtracted";
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationManager.class);
@@ -94,7 +94,7 @@ public class NotificationManager {
      * @param status Boolean status
      */
     public static void notifyFileUploaded(boolean status) throws NotificationManagerException {
-        LOGGER.trace("Notifying file uploaded");
+        LOGGER.trace("Notifying file uploaded: " + status);
         notifyStatus(FILE_UPLOADED, status);
     }
 
@@ -104,7 +104,17 @@ public class NotificationManager {
      * @param status Boolean status
      */
     public static void notifyFileExtracted(boolean status) throws NotificationManagerException {
-        LOGGER.trace("Notifying file extracted");
+        LOGGER.trace("Notifying file extracted: " + status);
+        notifyStatus(FILE_EXTRACTED, status);
+    }
+
+    /**
+     * Notify server is started or not
+     *
+     * @param status Boolean status
+     */
+    public static void notifyServerStarted(boolean status) throws NotificationManagerException {
+        LOGGER.trace("Notifying server started: " + status);
         notifyStatus(FILE_EXTRACTED, status);
     }
 
