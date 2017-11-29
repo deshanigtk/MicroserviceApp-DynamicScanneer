@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) ${2017}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,6 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
+
 package org.wso2.security.tools.product.manager.service;
 
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import java.io.IOException;
  */
 @Service
 public class ProductManagerService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductManagerService.class);
 
     /**
@@ -50,7 +52,6 @@ public class ProductManagerService {
      */
     public void startServer(String automationManagerHost, int automationManagerPort, String containerId,
                             MultipartFile zipFile) throws ProductManagerException, NotificationManagerException {
-
         String zipFileName;
         File productFolder = new File(ProductManagerProperties.getProductManagerProductPath());
 
@@ -73,7 +74,6 @@ public class ProductManagerService {
                 throw new ProductManagerException("Error occurred while uploading zip file");
             }
         }
-
         ProductManagerExecutor productManagerExecutor = new ProductManagerExecutor(zipFileName);
         new Thread(productManagerExecutor).start();
     }
@@ -83,5 +83,4 @@ public class ProductManagerService {
         NotificationManager.config(automationManagerHost, automationManagerPort, myContainerId);
         return NotificationManager.isConfigured();
     }
-
 }

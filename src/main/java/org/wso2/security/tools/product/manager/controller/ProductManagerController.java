@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) ${2017}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,6 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
+
 package org.wso2.security.tools.product.manager.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +54,10 @@ public class ProductManagerController {
     @PostMapping(value = "startServer")
     @ResponseBody
     public void startServer(@RequestParam String automationManagerHost,
-                              @RequestParam int automationManagerPort,
-                              @RequestParam String myContainerId,
-                              @RequestParam MultipartFile zipFile) throws NotificationManagerException, ProductManagerException {
+                            @RequestParam int automationManagerPort,
+                            @RequestParam String myContainerId,
+                            @RequestParam MultipartFile zipFile) throws NotificationManagerException,
+            ProductManagerException {
         productManagerService.startServer(automationManagerHost, automationManagerPort, myContainerId, zipFile);
     }
 }

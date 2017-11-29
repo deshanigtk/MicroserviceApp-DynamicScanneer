@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) ${2017}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,6 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
+
 package org.wso2.security.tools.product.manager.handler;
 
 import org.apache.commons.io.FileUtils;
@@ -29,6 +30,7 @@ import java.util.zip.ZipFile;
  * Utility methods for file handling
  */
 public class FileHandler {
+
     private static String wso2serverFileAbsolutePath;
 
     /**
@@ -66,7 +68,6 @@ public class FileHandler {
         String newPath = file.getParent();
         String fileName = file.getName();
         Enumeration zipFileEntries = zip.entries();
-
         while (zipFileEntries.hasMoreElements()) {
             // grab a zip file entry
             ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
@@ -75,7 +76,6 @@ public class FileHandler {
             File destinationParent = destFile.getParentFile();
             // create the parent directory structure if needed
             destinationParent.mkdirs();
-
             if (!entry.isDirectory()) {
                 BufferedInputStream is = new BufferedInputStream(zip.getInputStream(entry));
                 int currentByte;

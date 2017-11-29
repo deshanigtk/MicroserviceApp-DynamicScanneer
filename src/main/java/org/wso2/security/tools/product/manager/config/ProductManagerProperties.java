@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) ${date}, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,6 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
+
 package org.wso2.security.tools.product.manager.config;
 
 import java.io.BufferedInputStream;
@@ -26,6 +27,7 @@ import java.util.Properties;
  */
 @SuppressWarnings({"unused"})
 public class ProductManagerProperties {
+
     private static String productManagerProductPath;
     private static int productManagerProductPort;
     private static int productManagerPortOffset;
@@ -38,7 +40,6 @@ public class ProductManagerProperties {
         try {
             properties.load(new BufferedInputStream(ProductManagerProperties.class.getClassLoader().getResourceAsStream
                     ("/productmanager.properties")));
-
             productManagerProductPath = properties.getProperty("product.manager.product.path");
             productManagerProductPort = Integer.parseInt(properties.getProperty("product.manager.product.port"));
             productManagerPortOffset = Integer.parseInt(properties.getProperty("product.manager.product.port.offset"));
@@ -46,7 +47,6 @@ public class ProductManagerProperties {
             productManagerWso2ServerFile = properties.getProperty("product.manager.wso2server.file");
             productManagerPortArg = properties.getProperty("product.manager.port.offset.arg");
         } catch (IOException e) {
-
             e.printStackTrace();
         }
     }
